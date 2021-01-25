@@ -50,6 +50,12 @@ export default {
   color: #2c3e50;
 }
 
+html, body {
+  background-color: #485461;
+  background-image: linear-gradient(315deg, #485461 0%, #28313b 74%);
+  height: 100%
+}
+
 #nav {
   padding: 30px;
 }

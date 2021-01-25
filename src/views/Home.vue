@@ -1,14 +1,20 @@
 <template>
-<div class="container" v-if="ready">
-  <br>
-  <div class="columns">
-    <div class="column is-8">
-      <AssignmentsView :classes="classes" />
+<div>
+  <div class="container" v-if="ready">
+    <br>
+    <div class="columns">
+      <div class="column is-8">
+        <AssignmentsView :classes="classes" />
+      </div>
+      <div class="column is-4">
+        <ScheduleViewer :classes="classes" />
+        <Clock />
+      </div>
     </div>
-    <div class="column is-4">
-      <ScheduleViewer :classes="classes" />
-      <Clock />
-    </div>
+  </div>
+  <div class="container" v-else>
+    <br>
+    <h1 class="has-text-white has-text-centered title is-1">Loading...</h1>
   </div>
 </div>
 </template>

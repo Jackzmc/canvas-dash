@@ -1,7 +1,7 @@
 <template>
 <div>
     <b-loading :active="loading" :is-full-page="false" />
-    <h4 class="title is-4">Assignments</h4>
+    <h2 class="title is-2 has-text-success">Assignments</h2>
     <div v-for="course in classes" :key="course.id" class="box">
         <h5 class="title is-5">{{course.name}}</h5>
         <table class="table is-fullwidth" v-if="assignments[course.id].length > 0">
@@ -9,13 +9,16 @@
                 <tr>
                     <th>Assignment</th>
                     <th>Status</th>
-                    <th>Due Relative</th>
+                    <th>Due</th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="assignment in assignments[course.id]" :key="assignment.id">
                     <th class="has-text-left">
-                        <a :href="assignment.html_url">{{assignment.name}}</a>
+                        <a :href="assignment.html_url" :class="getAssignmentClass(assignment)">
+                            {{assignment.name}}
+                            <b-icon icon="star" v-if="assignment.dueSoon" />
+                        </a>
                     </th>
                     <td></td>
                     <td>{{getDueDifference(assignment.timeTillDue)}}</td>
@@ -49,6 +52,15 @@ export default {
           if(hours > 24) return `${Math.round(hours / 24)} days`
           return `${hours} hours`
       },
+      getAssignmentClass({isLate, dueSoon}) {
+          if(isLate) {
+              return 'has-text-danger'
+          } else if(dueSoon) {
+              return 'warning'
+          }else{
+              return ''
+          }
+      },
       refreshAssignments() {
         const NOW = Date.now()
         this.loading = true;
@@ -69,7 +81,9 @@ export default {
                         
                         return {
                             ...assignment, 
-                            timeTillDue: delta > 0 ? delta : -1
+                            timeTillDue: delta > 0 ? delta : -1,
+                            dueSoon: delta <= 86400000,
+                            isLate: delta == -1
                         }
                     })
                     this.$set(this.assignments, course.id, assignments);
@@ -83,3 +97,9 @@ export default {
   }
 }
 </script>
+
+<style>
+.warning {
+    color: #e89a09
+}
+</style>
