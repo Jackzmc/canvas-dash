@@ -1,12 +1,45 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view/>
+    <router-view :classes="classes" :ready="ready" />
   </div>
 </template>
+
+<script>
+export default {
+  data() {
+    return {
+      classes: [],
+      ready: false
+    }
+  },
+  created() {
+    //TODO: Instead pull canvas_app_key from local storage, cache courses possibly?
+    fetch(process.env.VUE_APP_URL + '/api/v1/courses', {
+      headers: {
+        'Authorization': "Bearer " + process.env.VUE_APP_CANVAS_APP_KEY
+      }
+    })
+    .then(r => r.json())
+    .then(courses => {
+        const currentYear = new Date().getFullYear();
+        this.classes = courses.filter(course => {
+          //Filter out any old classes (ex: 2020 classes)
+          const startAt = new Date(course.start_at)
+          return startAt.getFullYear() >= currentYear
+        }).map(course => {
+          return {
+            ...course,
+            url: `${this.$DISPLAYURL}/courses/${course.id}`
+          }
+        })
+        this.ready = true;
+    })
+    .catch(err => {
+      console.error('err fetch', err)
+    })
+  }
+}
+</script>
 
 <style>
 #app {
