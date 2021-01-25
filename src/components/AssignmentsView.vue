@@ -39,7 +39,6 @@ export default {
   created() {
       this.classes.forEach(course => this.$set(this.assignments, course.id, []))
   },
-
   mounted() {
       this.refreshAssignments()
   },
