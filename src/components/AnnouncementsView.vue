@@ -99,7 +99,7 @@ function getContextQueryParam(courses) {
     const text = `?context_codes[]=course_${courses[0].id}`
     if(courses.length == 1) return text
     else {
-        return text + courses.slice(1).map(course => {
+        return text + courses.slice(1).filter(course => course.visible).map(course => {
             return `&context_codes[]=course_${course.id}`
         }).join("")
         

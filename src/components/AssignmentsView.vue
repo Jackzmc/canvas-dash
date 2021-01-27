@@ -16,7 +16,7 @@
     </div>
     <!-- TODO: HAve an option to list by day -->
     <h2 class="title is-2 has-text-white">Assignments</h2>
-    <div v-for="course in courses" :key="course.id" class="box">
+    <div v-for="course in visibleCourses" :key="course.id" class="box">
         <h5 class="title is-5">{{course.name}}</h5>
         <table class="table is-fullwidth" v-if="assignmentsByCourse[course.id] && assignmentsByCourse[course.id].length > 0">
             <thead>
@@ -102,6 +102,9 @@ export default {
           this.courses.forEach(course => assignments[course.id] = [])
           this.assignments.forEach(assn => assignments[assn.courseId].push(assn))
           return assignments
+      },
+      visibleCourses() {
+          return this.courses.filter(course => course.visible)
       }
   },
   methods: {
@@ -128,7 +131,7 @@ export default {
       refreshAssignments() {
         const NOW = Date.now()
         this.loading = true;
-        this.courses
+        this.visibleCourses
         .forEach(course => {
             fetch(this.server.url + `/api/v1/courses/${course.id}/assignments?include[]=submission&order_by=due_at`, {
                 headers: {

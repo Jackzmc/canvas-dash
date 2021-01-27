@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <div v-if="isSetup">
-      <router-view v-if="ready" :courses="classes" :ready="ready" :server="server"/>
+      <router-view v-if="ready" :courses="classes" :server="server"/>
       <div class="container" v-else>
         <br>
         <h1 class="has-text-white has-text-centered title is-1">Loading...</h1>
@@ -43,7 +43,19 @@ export default {
         })
         .then(r => r.json())
         .then(courses => {
-            this.classes = courses.filter(course => course)
+            this.classes = courses.map(course => {
+              if(metaJson.selectedCourses) {
+                return {
+                  ...course,
+                  visible: metaJson.selectedCourses.includes(course.id)
+                }
+              }else{
+                return {
+                  ...course,
+                  visible: true
+                }
+              }
+            })
             this.ready = true;
         })
         .catch(err => {

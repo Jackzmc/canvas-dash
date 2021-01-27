@@ -89,17 +89,16 @@ export default {
         canCancel: false,
         autoFocus: true,
         props: {
-            courses: this.courses,
-            preSchedule: this.schedule
+            courses: this.courses
         },
         events: {
-            submit: (courses) => {
-                const preMeta = JSON.parse(window.localStorage.canvas_meta)
-                window.localStorage.canvas_meta = JSON.stringify({
-                  ...preMeta,
-                  selectedCourses: courses
-                })
-            }
+          submit: (courses) => {
+              const preMeta = JSON.parse(window.localStorage.canvas_meta)
+              window.localStorage.canvas_meta = JSON.stringify({
+                ...preMeta,
+                selectedCourses: courses
+              })
+          }
         },
         component: () => import('@/components/CourseSelector.vue')
       })
