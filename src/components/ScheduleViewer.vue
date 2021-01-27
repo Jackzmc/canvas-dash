@@ -15,10 +15,10 @@
                     <b-tooltip label="The current or next class" v-if="activeEntryID == entry.id">
                         &nbsp;<b-icon type="is-success" icon="star" />
                     </b-tooltip>
-                    <router-link v-if="entry.type === 'COURSE'" :to="'/course/' + entry.id" :class="{'has-text-success': activeEntry == entry.id}">
+                    <router-link v-if="entry.type === 'COURSE'" :to="'/course/' + entry.id" :class="{'has-text-success': activeEntryID == entry.id}">
                         {{entry.cleanName || entry.name || "%3Cuntitled%3E"}}
                     </router-link>
-                    <span v-else :class="{'has-text-success': activeEntry == entry.id}">{{entry.name || "%3Cuntitled%3E"}}</span>
+                    <span v-else :class="{'has-text-success': activeEntryID == entry.id}">{{entry.name || "%3Cuntitled%3E"}}</span>
                     <b-tooltip label="Class is in person today" v-if="entry.isInPersonToday">
                         &nbsp;<b-icon icon="account-group" />
                     </b-tooltip>
@@ -34,7 +34,6 @@
 
 
 <script>
-
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 export default {
@@ -54,8 +53,7 @@ export default {
         this.todaysSchedule = this.schedule.forEach(({id,timestamp}) => {
             const difference = currentMS - timestamp.valueOf()
             if(difference < smallestDifference || smallestDifference == -1) {
-                console.log(this.activeEntry, id, difference)
-                this.activeEntry = id,
+                this.activeEntryID = id,
                 smallestDifference = difference
             }
         })
