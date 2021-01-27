@@ -1,0 +1,14 @@
+[
+    {
+        "id": "unl",
+        "title": "University of Nebraska-Lincoln",
+        "domain": "canvas.unl.edu",
+        "proxied": true
+    },
+    {
+        "id": "uno",
+        "title": "University of Nebraska at Omaha",
+        "domain": "unomaha.instructure.com",
+        "proxied": true
+    }
+]

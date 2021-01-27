@@ -1,44 +1,60 @@
-[
-    {
-        "name": "Calc II Lec",
-        "id": 103397,
-        "days": ["M", "W"],
-        "starts": "10:30 AM",
-        "ends": "11:20 AM"
-    },
-    {
-        "name": "Calc II Rect",
-        "id": 103404,
-        "days": ["T", "R"],
-        "starts": "11:00 AM",
-        "ends": "12:15 PM"
-    },
-    {
-        "name": "DYNAMIC EARTH GEOL101 SEC 250 Spring 2021",
-        "id": 102525,
-        "days": ["M","W","F"],
-        "starts": "1:30 PM",
-        "ends": "2:20 PM"
-    },
-    {
-        "name": "DYNAMIC EARTH GEOL101 SEC 252 Spring 2021",
-        "id": 102530,
-        "days": ["T"],
-        "starts": "6:30 PM",
-        "ends": "9:20 PM"
-    },
-    {
-        "name": "SE II 150",
-        "id": null,
-        "days": ["M","W","F"],
-        "starts": "11:30 AM",
-        "ends": "12:20 PM"
-    },
-    {
-        "name": "SE II LAB",
-        "id": null,
-        "days": [],
-        "starts": "3:30 PM",
-        "ends": "5:20 PM"
-    }
-]
+{
+    "courses": [
+        {
+            "name": "Calc II Lec",
+            "id": 103397,
+            "days": ["M", "W"],
+            "starts": "10:30 AM",
+            "ends": "11:20 AM"
+        },
+        {
+            "name": "Calc II Rect",
+            "id": 103404,
+            "days": ["T", "R"],
+            "starts": "11:00 AM",
+            "ends": "12:15 PM"
+        },
+        {
+            "name": "DYNAMIC EARTH GEOL101 SEC 250 Spring 2021",
+            "id": 102525,
+            "days": ["M","W","F"],
+            "starts": "1:30 PM",
+            "ends": "2:20 PM"
+        },
+        {
+            "name": "DYNAMIC EARTH GEOL101 SEC 252 Spring 2021",
+            "id": 102530,
+            "days": ["T"],
+            "starts": "6:30 PM",
+            "ends": "9:20 PM"
+        },
+        {
+            "name": "SE II 150",
+            "id": null,
+            "days": ["M","W","F"],
+            "starts": "11:30 AM",
+            "ends": "12:20 PM"
+        },
+        {
+            "name": "SE II LAB",
+            "id": null,
+            "days": [],
+            "starts": "3:30 PM",
+            "ends": "5:20 PM"
+        }
+    ],
+    "personal": [
+        {
+            "name": "Lunch",
+            "days": ["M", "W", "F"],
+            "starts": "12:30 PM",
+            "ends": "1 PM"
+        },
+        {
+            "name": "Lunch",
+            "days": ["T", "R"],
+            "starts": "12:30 PM",
+            "ends": "1 PM"
+        }
+    ]
+}

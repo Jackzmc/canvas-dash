@@ -10,26 +10,33 @@
             </tr>
         </thead>
         <tbody>
-            <tr v-for="course in todayCourses" :key="course.id">
+            <tr v-for="entry in todaysSchedule" :key="entry.id">
                 <th class="has-text-left">
-                    <a :href="course.url">{{course.cleanName || course.name}}</a>
+                    <router-link v-if="entry.type === 'COURSE'" :to="'/course/' + entry.id">{{entry.cleanName || entry.name || "%3Cuntitled%3E"}}</router-link>
+                    <span v-else>{{entry.name || "%3Cuntitled%3E"}}</span>
+                    <b-tooltip label="Class is in person today" v-if="entry.isInPersonToday">
+                        &nbsp;<b-icon icon="account-group" />
+                    </b-tooltip>
                 </th>
-                <td class="has-text-right">{{course.starts}}</td>
-                <td class="has-text-right">{{course.ends}}</td>
+                <td class="has-text-right">{{entry.starts}}</td>
+                <td class="has-text-right">{{entry.ends}}</td>
             </tr>
         </tbody>
     </table>
 </div>
 </template>
+<!-- TODO: Implement next class highlights in view -->
+
 
 <script>
-import classSchedules from '@/data/schedule.json'
+
+import schedules from '@/data/schedule.json'
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 export default {
-  props: ['classes'],
+    //TODO: add schedule to props
+  props: ['courses'],
   name: 'ScheduleViewer',
-  classSchedules,
   data() {
       return {
 
@@ -44,21 +51,43 @@ export default {
           if(day == "S") return "M";
           return day;
       },
-      courses() {
-          return this.$options.classSchedules
+      coursesComplete() {
+          return schedules.courses
           .map(entry => {
               if(!entry.id) return entry;
-              const classData = this.classes.find(v => v.id === entry.id)
+              const classData = this.courses.find(v => v.id === entry.id)
               if(!classData) {
                 console.warn(`Schedule entry's id not found on canvas`, entry)
                 return entry;
               }
               const cleanName = classData.name.split(" ").slice(0, 2).join(" ")
-              return Object.assign(entry, classData, {cleanName, hasCanvasData: true})
+              return {...entry, ...classData, cleanName, hasCanvasData: true, type: "COURSE"}
           }).filter(v => v)
       },
-      todayCourses() {
-          return this.courses.filter(v => v.days.includes(this.today))
+      schedule() {
+          const personal = schedules.personal.map(entry => {
+              return {...entry, id: entry.name + entry.days.toString()}
+          })
+          return [...this.coursesComplete, ...personal].map(entry => {
+              //get start as timestamp to sort
+              const [time, period] = entry.starts.split(" ")
+              const [hours, minutes] = time.split(":")
+              const startTime = new Date();
+              if(period === "PM") 
+                  startTime.setHours(hours + 12)
+              else
+                startTime.setHours(hours)
+              if(minutes) startTime.setMinutes(minutes)
+              return {...entry, startTime: startTime.valueOf() }
+          }).sort((a,b) => a.startTime - b.startTime)
+      },
+      todaysSchedule() {
+          return this.schedule.filter(v => v.days.includes(this.today)).map(entry => {
+              return {
+                  ...entry,
+                  isInPersonToday: entry.inPersonDays ? entry.inPersonDays.includes(this.today) : false
+              }
+          })
       }
   }
 }
