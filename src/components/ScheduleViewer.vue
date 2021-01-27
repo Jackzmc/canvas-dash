@@ -48,7 +48,7 @@ export default {
       }
   },
   created() {
-      if(window.localStorage.canvas_schedule)
+    if(window.localStorage.canvas_schedule) {
         this.schedule = JSON.parse(window.localStorage.canvas_schedule)
         .map(entry => {
             if(entry.course && entry.course !== "none") {
@@ -62,6 +62,20 @@ export default {
             } else
                 return entry;
         })
+    }
+    //update active entry every 10 min
+    setInterval(() => {
+        const currentMS = Date.now()
+        let smallestDifference = -1;
+        this.schedule.forEach(({id,timestamp}) => {
+            const difference = currentMS - timestamp.valueOf()
+            if(difference < smallestDifference || smallestDifference == -1) {
+                console.log(this.activeEntry, id, difference)
+                this.activeEntry = id,
+                smallestDifference = difference
+            }
+        })
+    }, 1000 * 60 * 60 * 10);
   },
   computed: {
       todayName() {
@@ -80,14 +94,16 @@ export default {
                 const timestamp = new Date()
                 const [time, period] = entry.starts.split(" ")
                 const [hours, minutes] = time.split(":")
-                if(period == "PM")
+                if(period == "PM" && hours < 12 )
                     timestamp.setHours(hours + 12)
+                else if(period == "AM" && hours == 12) 
+                    timestamp.setHours(0)
                 else
                     timestamp.setHours(hours)
                 if(minutes) timestamp.setMinutes(minutes)
-
                 const difference = currentMS - timestamp.valueOf()
-                if(difference > 0 && difference < smallestDifference || smallestDifference == -1) {
+                console.log(entry.name, timestamp.valueOf(), currentMS, difference)
+                if( difference < smallestDifference || smallestDifference == -1) {
                     this.activeEntry = entry.id,
                     smallestDifference = difference
                 }
@@ -98,6 +114,7 @@ export default {
                     timestamp: timestamp.valueOf()
                 }
             })
+            .sort((a,b) => a.timestamp - b.timestamp)
           
       }
   }

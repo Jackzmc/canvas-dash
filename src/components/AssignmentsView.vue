@@ -64,6 +64,7 @@ export default {
   },
   created() {
         //TODO: Implement course-selection
+        //TODO: Implement desktop notifications when assignment is near-due
         const assignments = JSON.parse(window.localStorage.canvas_meta).assignments || []
         assignments.forEach(assignments => {
             //Only restore IF its not been 14 days. don't need to hold onto old visibilities
@@ -153,7 +154,7 @@ export default {
                         dueSoon: delta <= 86400000,
                         isLate: delta <= 0
                     }
-                    if(delta <= 1000 * 60 * 60 * 48 && assignment.submission.workflow_state === "unsubmitted" && this.dueSoonAssignments.length < 10) {
+                    if(delta <= 1000 * 60 * 60 * 48 && assignment.submission.workflow_state === "unsubmitted" && this.dueSoonAssignments.length < 9 && !this.checkedAssignments[assignment.id]) {
                         this.dueSoonAssignments.push(obj)
                     }
                     return obj;
