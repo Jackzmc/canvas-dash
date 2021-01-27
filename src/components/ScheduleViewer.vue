@@ -12,8 +12,13 @@
         <tbody>
             <tr v-for="entry in todaysSchedule" :key="entry.id">
                 <th class="has-text-left">
-                    <router-link v-if="entry.type === 'COURSE'" :to="'/course/' + entry.id">{{entry.cleanName || entry.name || "%3Cuntitled%3E"}}</router-link>
-                    <span v-else>{{entry.name || "%3Cuntitled%3E"}}</span>
+                    <b-tooltip label="The current or next class" v-if="activeEntry == entry.id">
+                        &nbsp;<b-icon type="is-success" icon="star" />
+                    </b-tooltip>
+                    <router-link v-if="entry.type === 'COURSE'" :to="'/course/' + entry.id" :class="{'has-text-success': activeEntry == entry.id}">
+                        {{entry.cleanName || entry.name || "%3Cuntitled%3E"}}
+                    </router-link>
+                    <span v-else :class="{'has-text-success': activeEntry == entry.id}">{{entry.name || "%3Cuntitled%3E"}}</span>
                     <b-tooltip label="Class is in person today" v-if="entry.isInPersonToday">
                         &nbsp;<b-icon icon="account-group" />
                     </b-tooltip>
@@ -38,7 +43,8 @@ export default {
   name: 'ScheduleViewer',
   data() {
       return {
-          schedule: []
+          schedule: [],
+          activeEntry: null
       }
   },
   created() {
@@ -67,12 +73,32 @@ export default {
           return day;
       },
       todaysSchedule() {
-          return this.schedule.filter(v => v.days.includes(this.today)).map(entry => {
-              return {
-                  ...entry,
-                  isInPersonToday: entry.inPersonDays ? entry.inPersonDays.includes(this.today) : false
-              }
-          })
+            const currentMS = Date.now()
+            let smallestDifference = -1;
+            return this.schedule.filter(v => v.days.includes(this.today))
+            .map(entry => {
+                const timestamp = new Date()
+                const [time, period] = entry.starts.split(" ")
+                const [hours, minutes] = time.split(":")
+                if(period == "PM")
+                    timestamp.setHours(hours + 12)
+                else
+                    timestamp.setHours(hours)
+                if(minutes) timestamp.setMinutes(minutes)
+
+                const difference = currentMS - timestamp.valueOf()
+                if(difference > 0 && difference < smallestDifference || smallestDifference == -1) {
+                    this.activeEntry = entry.id,
+                    smallestDifference = difference
+                }
+
+                return {
+                    ...entry,
+                    isInPersonToday: entry.inPersonDays ? entry.inPersonDays.includes(this.today) : false,
+                    timestamp: timestamp.valueOf()
+                }
+            })
+          
       }
   }
 }

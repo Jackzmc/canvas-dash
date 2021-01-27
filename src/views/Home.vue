@@ -28,7 +28,7 @@
         </b-tab-item>
       </b-tabs>
       </div>
-      <div class="column">
+      <div class="column sticky">
         <ScheduleViewer :courses="courses" :schedule="schedule" />
         <Clock />
         <div class="box">
