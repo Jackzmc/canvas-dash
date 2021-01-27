@@ -8,7 +8,7 @@
         <br>
         <form @submit.prevent="submitSetup">
             <b-field label="Canvas API Key">
-                <b-input minlength="69" maxlength="69" required v-model="api" placeholder="Enter your canvas api key" />
+                <b-input minlength="60" maxlength="70" required v-model="api" placeholder="Enter your canvas api key" />
             </b-field>
             <b-field label="Server">
                 <b-select v-model="selectedServer" placeholder="Choose a server">
@@ -23,6 +23,11 @@
             <p class="subtitle is-6">You can change and setup your schedule at any time later.</p>
             <b-button @click="openScheduler" type="is-primary" :disabled="schedulerDisabled" :loading="loadingCourses">Manage Schedule</b-button>
             <p v-if="schedulerDisabled" class="has-text-danger">Please enter an API Key & select a server to open the scheduler.</p>
+            <hr>
+            <h5 class="title is-5">Course Selection (optional)</h5>
+            <p class="subtitle is-6">You can change what courses you want to see later.</p>
+            <b-button @click="openCourseManager" type="is-dark" :disabled="schedulerDisabled" :loading="loadingCourses">Manage Courses</b-button>
+            <p v-if="schedulerDisabled" class="has-text-danger">Please enter an API Key & select a server to open the course manager.</p>
             <hr>
             <b-field>
                 <b-button native-type="submit" type="is-success" >Setup Dashboard</b-button>
@@ -42,7 +47,8 @@ export default {
             servers: null,
             schedule: null,
             courses: null,
-            loadingCourses: false
+            loadingCourses: false,
+            failure: false
         }
     },
     created() {
@@ -58,10 +64,35 @@ export default {
         }
     },
     methods: {
+        async openCourseManager() {
+            if(!this.courses) {
+                await this.fetchCourses()
+            }
+            if(!this.failure || this.courses == null) return;
+            this.$buefy.modal.open({
+                parent: this,
+                canCancel: false,
+                autoFocus: true,
+                props: {
+                    courses: this.courses
+                },
+                events: {
+                    submit: (courses) => {
+                        const preMeta = JSON.parse(window.localStorage.canvas_meta)
+                        window.localStorage.canvas_meta = JSON.stringify({
+                            ...preMeta,
+                            selectedCourses: courses
+                        })
+                    }
+                },
+                component: () => import('@/components/CourseSelector.vue')
+            })
+        },
         async openScheduler() {
             if(!this.courses) {
                 await this.fetchCourses()
             }
+            if(!this.failure || this.courses == null) return;
             this.$buefy.modal.open({
                 parent: this,
                 canCancel: false,
@@ -96,8 +127,13 @@ export default {
                     return startAt.getFullYear() >= currentYear
                 })
             })
-            .catch(err => {
-                console.error('err fetch', err)
+            .catch(() => {
+                this.$buefy.dialog.alert({
+                    type: 'is-danger',
+                    title: 'Invalid API Key',
+                    message: 'Sorry but the API key you provided is invalid. Cannot access your courses.'
+                })
+                this.failure = true
             })
             .finally(() => this.loadingCourses = false)
         },
