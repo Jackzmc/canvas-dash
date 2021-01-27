@@ -23,7 +23,7 @@
             <tbody>
                 <tr v-for="entry in schedule" :key="entry.id">
                     <td>{{entry.name}}</td>
-                    <td>{{entry.course || ''}}</td>
+                    <td>{{entry.course ? entry.course.id : ''}}</td>
                     <td>{{entry.days.join(" ")}}</td>
                     <td class="has-text-left">{{entry.starts}}</td>
                     <td class="has-text-left">{{entry.ends}}</td>
