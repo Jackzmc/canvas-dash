@@ -3,10 +3,12 @@
     <b-loading :active="loading" :is-full-page="false" />
     <h2 class="title is-2 has-text-danger">Upcoming Assignments</h2>
     <div class="columns is-multiline">
-        <div class="column is-4" v-for="assignment in dueSoonAssignments" :key="assignment.id"> 
+        <div class="column is-4" v-for="assignment in assignmentsDueSoon" :key="assignment.id"> 
             <div class="box">
                 <h4 class="title is-4">
-                    <a class="has-text-danger" :href="assignment.html_url">{{assignment.name}}</a>
+                    <a :class="{'has-text-danger': assignment.isLate, 'warning': !assignment.isLate}" :href="assignment.html_url">
+                        {{assignment.name}}
+                    </a>
                 </h4>
                 <p class="subtitle is-6">{{courseNames[assignment.course_id]}}</p>
                 <p>Due <b>{{getDueDate(assignment.due_at)}}</b></p>
@@ -57,7 +59,6 @@ export default {
   data() {
       return {
           assignments: [],
-          dueSoonAssignments: [],
           checkedAssignments: {},
           loading: true,
       }
@@ -105,6 +106,12 @@ export default {
       },
       visibleCourses() {
           return this.courses.filter(course => course.visible)
+      },
+      assignmentsDueSoon() {
+          return this.assignments
+          .filter(assignment => !this.checkedAssignments[assignment.id])
+          .sort((a,b) => a.delta - b.delta )
+          .slice(0, 6)
       }
   },
   methods: {
@@ -154,11 +161,8 @@ export default {
                         ...assignment, 
                         courseId: course.id,
                         timeTillDue: delta > 0 ? delta : -1,
-                        dueSoon: delta <= 86400000,
+                        delta,
                         isLate: delta <= 0
-                    }
-                    if(delta <= 1000 * 60 * 60 * 48 && assignment.submission.workflow_state === "unsubmitted" && this.dueSoonAssignments.length < 9 && !this.checkedAssignments[assignment.id]) {
-                        this.dueSoonAssignments.push(obj)
                     }
                     return obj;
                 })
