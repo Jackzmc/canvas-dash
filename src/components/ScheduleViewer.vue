@@ -12,7 +12,7 @@
         <tbody>
             <tr v-for="entry in todaysSchedule" :key="entry.id">
                 <th class="has-text-left">
-                    <b-tooltip label="The current or next class" v-if="activeEntry == entry.id">
+                    <b-tooltip label="The current or next class" v-if="activeEntryID == entry.id">
                         &nbsp;<b-icon type="is-success" icon="star" />
                     </b-tooltip>
                     <router-link v-if="entry.type === 'COURSE'" :to="'/course/' + entry.id" :class="{'has-text-success': activeEntry == entry.id}">
@@ -43,7 +43,7 @@ export default {
   name: 'ScheduleViewer',
   data() {
       return {
-          activeEntry: null
+          activeEntryID: null
       }
   },
   created() {
@@ -51,7 +51,7 @@ export default {
     setInterval(() => {
         const currentMS = Date.now()
         let smallestDifference = -1;
-        this.schedule.forEach(({id,timestamp}) => {
+        this.todaysSchedule = this.schedule.forEach(({id,timestamp}) => {
             const difference = currentMS - timestamp.valueOf()
             if(difference < smallestDifference || smallestDifference == -1) {
                 console.log(this.activeEntry, id, difference)
@@ -59,7 +59,12 @@ export default {
                 smallestDifference = difference
             }
         })
+                    
+        //Check if active entry is over
+        this.checkForEndedActive()
     }, 1000 * 60 * 60 * 10);
+
+    this.getTodaysSchedule()
   },
   computed: {
       todayName() {
@@ -70,37 +75,55 @@ export default {
           if(day == "S") return "M";
           return day;
       },
-      todaysSchedule() {
+  },
+  methods: {
+       getTodaysSchedule() {
             const currentMS = Date.now()
             let smallestDifference = -1;
-            return this.schedule.filter(v => v.days.includes(this.today))
+            this.todaysSchedule = this.schedule.filter(v => v.days.includes(this.today))
             .map(entry => {
-                const timestamp = new Date()
-                const [time, period] = entry.starts.split(" ")
-                const [hours, minutes] = time.split(":")
-                if(period == "PM" && hours < 12 )
-                    timestamp.setHours(hours + 12)
-                else if(period == "AM" && hours == 12) 
-                    timestamp.setHours(0)
-                else
-                    timestamp.setHours(hours)
-                if(minutes) timestamp.setMinutes(minutes)
-                const difference = currentMS - timestamp.valueOf()
-                console.log(entry.name, timestamp.valueOf(), currentMS, difference)
+                const timestamp = getTimestampFromTime(entry.starts)
+                const difference = currentMS - timestamp
                 if( difference < smallestDifference || smallestDifference == -1) {
-                    this.activeEntry = entry.id,
+                    this.activeEntryID = entry.id,
                     smallestDifference = difference
                 }
 
                 return {
                     ...entry,
                     isInPersonToday: entry.inPersonDays ? entry.inPersonDays.includes(this.today) : false,
-                    timestamp: timestamp.valueOf()
+                    timestamp
                 }
             })
-            .sort((a,b) => a.timestamp - b.timestamp)
+            .sort((a,b) => b.timestamp - a.timestamp)
           
+            //Check if active entry is over
+            this.checkForEndedActive()
+      },
+      checkForEndedActive() {
+            const activeEntry = this.schedule.find(entry => entry.id === this.activeEntryID)
+            if(activeEntry) {
+                const startTimestamp = getTimestampFromTime(activeEntry.starts)
+                const endTimestamp = getTimestampFromTime(activeEntry.ends)
+                //If the start timestamp is bigger (aka over) the end timestamp, remove it
+                if(startTimestamp > endTimestamp) {
+                    this.activeEntryID = null;
+                }
+            }
       }
   }
+}
+function getTimestampFromTime(inputTime) {
+    const timestamp = new Date();
+    const [time, period] = inputTime.split(" ")
+    const [hours, minutes] = time.split(":")
+    if(period == "PM" && hours < 12 )
+        timestamp.setHours(hours + 12)
+    else if(period == "AM" && hours == 12) 
+        timestamp.setHours(0)
+    else
+        timestamp.setHours(hours)
+    if(minutes) timestamp.setMinutes(minutes)
+    return Date.now() - timestamp.valueOf()
 }
 </script>
