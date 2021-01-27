@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <div v-if="isSetup">
-      <router-view v-if="ready" :courses="classes" :ready="ready" :server="server" :schedule="schedule" />
+      <router-view v-if="ready" :courses="classes" :ready="ready" :server="server"/>
       <div class="container" v-else>
         <br>
         <h1 class="has-text-white has-text-centered title is-1">Loading...</h1>
@@ -19,7 +19,6 @@ export default {
       ready: false,
       isSetup: false,
       setupModal: null,
-      schedule: null
     }
   },
   //TODO: Course pickler selection
@@ -27,10 +26,7 @@ export default {
     document.addEventListener('swUpdated', this.updateAvailable, { once: true })
     if(window.localStorage.canvas_meta) {
         const metaJson = JSON.parse(window.localStorage.canvas_meta);
-        const schedJson = window.localStorage.canvas_schedule ? JSON.parse(window.localStorage.canvas_schedule) : []
-        this.server = metaJson.server,
-        this.schedule = schedJson
-
+        this.server = metaJson.server
         //migration
         if(!metaJson.server.api && metaJson.apiKey) {
           this.server.api = metaJson.apiKey

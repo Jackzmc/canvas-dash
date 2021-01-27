@@ -53,16 +53,56 @@ import Clock from '@/components/Clock.vue'
 
 export default {
   name: 'Home',
-  props: ['courses','schedule', 'server'],
+  props: ['courses','server'],
   components: {
     ScheduleViewer,
     AssignmentsView,
     AnnouncementsView,
     Clock
   },
+  data() {
+    return {
+      schedule: []
+    }
+  },
+  created() {
+    if(window.localStorage.canvas_schedule) {
+        this.schedule = JSON.parse(window.localStorage.canvas_schedule)
+        .map(entry => {
+            if(entry.course && entry.course !== "none") {
+                const classData = this.courses.find(c => c.id == entry.course)
+                if(!classData) {
+                    console.warn(`Could not find a canvas course set for entry`, entry)
+                    return entry;
+                }
+                const cleanName = classData.name.split(" ").slice(0, 2).join(" ")
+                return {...entry, course: classData, cleanName, hasCanvasData: true, type: "COURSE"}
+            } else
+                return entry;
+        })
+    }
+  },
   methods: {
     openCourseManager() {
-
+      this.$buefy.modal.open({
+        parent: this,
+        canCancel: false,
+        autoFocus: true,
+        props: {
+            courses: this.courses,
+            preSchedule: this.schedule
+        },
+        events: {
+            submit: (courses) => {
+                const preMeta = JSON.parse(window.localStorage.canvas_meta)
+                window.localStorage.canvas_meta = JSON.stringify({
+                  ...preMeta,
+                  selectedCourses: courses
+                })
+            }
+        },
+        component: () => import('@/components/CourseSelector.vue')
+      })
     },
     openScheduler() {
       this.$buefy.modal.open({

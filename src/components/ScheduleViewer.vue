@@ -39,30 +39,14 @@ const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Frid
 
 export default {
     //TODO: add schedule to props
-  props: ['courses'],
+  props: ['courses', 'schedule'],
   name: 'ScheduleViewer',
   data() {
       return {
-          schedule: [],
           activeEntry: null
       }
   },
   created() {
-    if(window.localStorage.canvas_schedule) {
-        this.schedule = JSON.parse(window.localStorage.canvas_schedule)
-        .map(entry => {
-            if(entry.course && entry.course !== "none") {
-                const classData = this.courses.find(c => c.id == entry.course)
-                if(!classData) {
-                    console.warn(`Could not find a canvas course set for entry`, entry)
-                    return entry;
-                }
-                const cleanName = classData.name.split(" ").slice(0, 2).join(" ")
-                return {...entry, course: classData, cleanName, hasCanvasData: true, type: "COURSE"}
-            } else
-                return entry;
-        })
-    }
     //update active entry every 10 min
     setInterval(() => {
         const currentMS = Date.now()
