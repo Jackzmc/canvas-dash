@@ -13,7 +13,7 @@
             <thead>
                 <tr>
                     <th>Name</th>
-                    <th>Course</th>
+                    <th>Course ID</th>
                     <th>Days</th>
                     <th>Starts</th>
                     <th>Ends</th>
@@ -23,10 +23,10 @@
             <tbody>
                 <tr v-for="entry in schedule" :key="entry.id">
                     <td>{{entry.name}}</td>
-                    <td>{{entry.course || 'None'}}</td>
-                    <td>{{entry.days.join(", ")}}</td>
-                    <td>{{entry.starts}}</td>
-                    <td>{{entry.ends}}</td>
+                    <td>{{entry.course || ''}}</td>
+                    <td>{{entry.days.join(" ")}}</td>
+                    <td class="has-text-left">{{entry.starts}}</td>
+                    <td class="has-text-left">{{entry.ends}}</td>
                     <td><b-button @click="deleteEntry(entry.id)" type="is-danger" icon-left="delete"></b-button></td>
                 </tr>
             </tbody>
@@ -67,7 +67,7 @@
                     </b-checkbox>
                 </div>
             </b-field>
-            <b-field label="Days In Person">
+            <b-field label="Days In Person (optional)">
                 <div class="block">
                     <b-checkbox v-model="addEntry.inPersonDays"
                         native-value="M">
@@ -92,11 +92,11 @@
                 </div>
             </b-field>
             <b-field grouped>
-                <b-field label="Starts">
-                    <b-timepicker v-model="addEntry.starts" inline required :increment-minutes="5" :default-minutes="0"></b-timepicker>
+                <b-field label="Start Time">
+                    <b-input v-model="addEntry.starts" required pattern="^\d{1,2}(:\d{2})?\s[A|P|a|p][m|M]" placeholder="11:30 am"></b-input>
                 </b-field>
-                <b-field label="Ends">
-                    <b-timepicker v-model="addEntry.ends" inline required :increment-minutes="5" :default-minutes="0"></b-timepicker>
+                <b-field label="End Time">
+                    <b-input v-model="addEntry.ends" required pattern="^\d{1,2}(:\d{2})?\s[A|P|a|p][m|M]" placeholder="12:20 pm"></b-input>
                 </b-field>
             </b-field>
             <b-field>
@@ -142,6 +142,8 @@ export default {
                 || !this.addEntry.starts
                 || !this.addEntry.ends
                 || this.addEntry.days.length == 0
+                || !/^\d{1,2}(:\d{2})?\s[A|P|a|p][m|M]/.test(this.addEntry.starts)
+                || !/^\d{1,2}(:\d{2})?\s[A|P|a|p][m|M]/.test(this.addEntry.ends)
         }
     },
     methods: {
@@ -150,8 +152,8 @@ export default {
                 name: this.addEntry.name,
                 course: this.addEntry.course === "none" ? null : this.addEntry.course,
                 days: this.addEntry.days,
-                starts: this.addEntry.starts.toLocaleString([], { hour: '2-digit', minute: '2-digit' }),
-                ends: this.addEntry.ends.toLocaleString([], { hour: '2-digit', minute: '2-digit' }),
+                starts: this.addEntry.starts.toUpperCase(),
+                ends: this.addEntry.ends.toUpperCase(),
                 id: this.addEntry.name + this.addEntry.days.toString()
             })
             this.addEntry.name = null;
