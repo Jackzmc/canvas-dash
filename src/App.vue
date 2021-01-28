@@ -4,7 +4,8 @@
       <router-view v-if="ready" :courses="classes" :server="server"/>
       <div class="container" v-else>
         <br>
-        <h1 class="has-text-white has-text-centered title is-1">Loading...</h1>
+        <div class="info has-text-white">Loading your dashboard...</div>
+        <b-loading :active="!ready" />
       </div>
     </div>
   </div>
@@ -104,7 +105,8 @@ export default {
 html, body {
   background: #383838;  /* fallback for old browsers */
   background: -webkit-linear-gradient(to right, #3d72b4, #525252);  /* Chrome 10-25, Safari 5.1-6 */
-  width: 100%
+  width: 100%;
+  height: 100%
 }
 
 #nav {
@@ -118,5 +120,13 @@ html, body {
 
 #nav a.router-link-exact-active {
   color: #42b983;
+}
+.info {
+  position: fixed;
+  top: 40%;
+  left: 50%;
+  margin-top: -50px;
+  margin-left: -100px;
+  font-size: 20px
 }
 </style>

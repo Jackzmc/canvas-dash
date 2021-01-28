@@ -15,7 +15,7 @@
                     <b-tooltip label="The current or next class" v-if="activeEntryID == entry.id">
                         &nbsp;<b-icon type="is-success" icon="star" />
                     </b-tooltip>
-                    <router-link v-if="entry.type === 'COURSE'" :to="'/course/' + entry.id" :class="{'has-text-success': activeEntryID == entry.id}">
+                    <router-link v-if="entry.type === 'COURSE'" :to="'/course/' + entry.course.id" :class="{'has-text-success': activeEntryID == entry.id}">
                         {{entry.cleanName || entry.name || "%3Cuntitled%3E"}}
                     </router-link>
                     <span v-else :class="{'has-text-success': activeEntryID == entry.id}">{{entry.name || "%3Cuntitled%3E"}}</span>
@@ -42,10 +42,12 @@ export default {
   name: 'ScheduleViewer',
   data() {
       return {
-          activeEntryID: null
+          activeEntryID: null,
+          today: null
       }
   },
   created() {
+    this.today = getDayLetter(new Date());
     //update active entry every 10 min
     setInterval(() => {
         const currentMS = Date.now()
@@ -67,11 +69,6 @@ export default {
   computed: {
       todayName() {
           return DAY_NAMES[new Date().getDay()]
-      },
-      today() {
-          const day = new Date().toString().slice(0,1).toUpperCase();
-          if(day == "S") return "M";
-          return day;
       },
   },
   methods: {
@@ -106,10 +103,26 @@ export default {
                 //If the start timestamp is bigger (aka over) the end timestamp, remove it
                 if(startTimestamp > endTimestamp) {
                     this.activeEntryID = null;
+                    //const today = new Date()
+                    //this.today = getDayLetter(new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1))
                 }
             }
       }
   }
+}
+function getDayLetter(date) {
+    const part = date.toString().slice(0,2).toUpperCase()
+    switch(part) {
+        case "TU": 
+            return "T"
+        case "TH": 
+            return "R"
+        case "SU": 
+        case "SA": 
+            return "M"
+        default: 
+            return part[0]
+    }
 }
 function getTimestampFromTime(inputTime) {
     const timestamp = new Date();
