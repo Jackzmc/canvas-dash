@@ -12,17 +12,10 @@ export default {
       calendarOptions: {
         plugins: [ dayGridPlugin,],
         initialView: 'dayGridMonth',
-        events: [
-            this.courses.map(course => course.calendar.ics)
-        ],
+        events: []
       },
       ready: false
     }
-  },
-  computed: {
-      icsSources() {
-          return []
-      }
   },
   created() {
       fetch(this.server.url + '/api/v1/users/self/upcoming_events', {headers: {Authorization: "Bearer " + this.server.api}})
@@ -37,14 +30,15 @@ export default {
                 }
             })
             this.ready = true
-            this.$refs.calendar.render()
+            
       })
-  }
+  },
 }
 </script>
 
 <template>
 <div class="box">
+  <b-loading :is-full-page="false" :active="!ready" />
   <FullCalendar v-if="ready" ref="calendar" :options="calendarOptions" />
 </div>
 </template>

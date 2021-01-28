@@ -4,27 +4,27 @@
     <br>
     <div class="columns">
       <div class="column is-8">
-      <b-tabs>
-        <b-tab-item label="Dash">
+      <b-tabs v-model="tabIndex">
+        <b-tab-item label="Dash" value="dash">
           <template #header>
               <b-icon type="is-white" icon="information-outline"></b-icon>
               <span class="has-text-white">Dashboard</span>
           </template>
           <AssignmentsView :courses="courses" :server="server"/>
         </b-tab-item>
-        <b-tab-item label="Announcements">
+        <b-tab-item label="Announcements" value="announcements">
             <template #header>
                 <b-icon type="is-white" icon="bullhorn-outline"></b-icon>
                 <span class="has-text-white">Announcements</span>
             </template>
-            <AnnouncementsView :courses="courses" :server="server" />
+            <AnnouncementsView  :courses="courses" :server="server" />
         </b-tab-item>
-        <b-tab-item label="Calendar">
+        <b-tab-item label="Calendar" value="calendar">
             <template #header>
                 <b-icon type="is-white" icon="calendar"></b-icon>
                 <span class="has-text-white">Calendar</span>
             </template>
-            <Calendar :courses="courses" :server="server" />
+            <Calendar  :courses="courses" :server="server" />
         </b-tab-item>
       </b-tabs>
       </div>
@@ -64,7 +64,8 @@ export default {
   },
   data() {
     return {
-      schedule: []
+      schedule: [],
+      tabIndex: "dash"
     }
   },
   created() {

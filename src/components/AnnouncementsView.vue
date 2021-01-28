@@ -1,5 +1,6 @@
 <template>
 <div class="container">
+    <b-loading :is-full-page="false" :active="loading" />
     <h4 class="title is-4 has-text-white">announces</h4>
     <div class="columns is-mobile is-multiline">
     <div class="column is-12" v-for="announcement in announcements" :key="announcement.id">
@@ -34,7 +35,8 @@ export default {
     data() {
         return {
             announcements: [],
-            visible: {}
+            visible: {},
+            loading: true,
         }
     },
     created() {
@@ -63,6 +65,7 @@ export default {
     },
     methods: {
         refreshAnnouncements() {
+            this.loading = true
             fetch(this.server.url + `/api/v1/announcements${getContextQueryParam(this.courses)}`, {
                 headers: {
                     'Authorization': "Bearer " + this.server.api
@@ -77,12 +80,14 @@ export default {
                     if(course) {
                         announcement.course = course
                     }
+                    announcement.message = filterMessageContent(announcement.message)
                     return announcement
                 })
             })
             .catch(err => {
                 console.error('Failed to fetch announcements', err)
             })
+            .finally(() => this.loading = false)
         },
         getDate(time) {
             const date = new Date(time)
@@ -104,5 +109,12 @@ function getContextQueryParam(courses) {
         }).join("")
         
     }
+}
+// eslint-disable-next-line
+const IFRAME_REGEX = new RegExp(/<iframe\s.+src=["|'](https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))["|'].+><\/iframe>/g)
+function filterMessageContent(html) {
+    return html.replace(IFRAME_REGEX, (match, p1) => {
+        return `<a href="${p1}" alt="Converted Iframe">${p1}</a>`
+    })
 }
 </script>

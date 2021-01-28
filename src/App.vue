@@ -40,7 +40,8 @@ export default {
         fetch(this.server.url + '/api/v1/courses?include[]=tabs&per_page=100', {
           headers: {
             'Authorization': "Bearer " + this.server.api
-          }
+          },
+          cache: 'force-cache'
         })
         .then(r => r.json())
         .then(courses => {
