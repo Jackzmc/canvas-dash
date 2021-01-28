@@ -1,6 +1,6 @@
 <template>
 <div>
-    <div v-for="day in Object.keys(assignmentsByDay)" :key="day" class="box">
+    <div v-for="day in days" :key="day" class="box">
         <h5 class="title is-5">{{day}}</h5>
         <table class="table is-fullwidth" v-if="assignmentsByDay[day] && assignmentsByDay[day].length > 0">
             <thead>
@@ -60,6 +60,21 @@ export default {
             delete days[tomorrowDate]
             return days
         },
+        days() {
+            return [
+                "Today",
+                "Tomorrow",
+                ...Object.keys(this.assignmentsByDay)
+                .filter(key => key[0] != "T")
+                .sort((a, b) => {
+                    const [y1,m1,d1] = a.split('-')
+                    const [y2,m2,d2] = b.split('-')
+                    const timestampA = new Date(y1,m1 - 1,d1).valueOf()
+                    const timestampB = new Date(y2,m2 - 1,d2).valueOf()
+                    return timestampA - timestampB
+                })
+            ]
+        }
     },
     methods: {
         getDueDifference(delta) {
