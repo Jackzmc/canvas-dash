@@ -74,7 +74,8 @@ export default {
         const link = await searchZoomLink(this.course.id, this.server)
         this.zoomFinderLoading = false
         if(link) {
-          this.$set(this.links, link, "Zoom Link")
+          if(!this.links[link])
+            this.$set(this.links, link, "Zoom Link")
         }else {
           alert('Sorry, no zoom links could be found')
         }
@@ -87,7 +88,7 @@ export default {
   }
 }
 const ZOOM_LINK_REGEX = new RegExp(/https?:\/\/.*?\.?zoom.us\/(j|my)\/([a-z0-9-_]+)/im)
-const PAGE_TITLE_REGEX = new RegExp(/(zoom)|(links)/i)
+const PAGE_TITLE_REGEX = new RegExp(/(zoom)|(link)/i)
 
 async function searchZoomLink(courseID, server) {
   const options = {headers: {'Authorization': "Bearer " + server.api}}

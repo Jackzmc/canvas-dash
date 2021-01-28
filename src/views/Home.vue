@@ -24,7 +24,7 @@
                 <b-icon type="is-white" icon="calendar"></b-icon>
                 <span class="has-text-white">Calendar</span>
             </template>
-            Sorry, not implemented.
+            <Calendar :courses="courses" :server="server" />
         </b-tab-item>
       </b-tabs>
       </div>
@@ -49,6 +49,7 @@
 import ScheduleViewer from '@/components/ScheduleViewer.vue'
 import AssignmentsView from '@/components/AssignmentsView.vue'
 import AnnouncementsView from '@/components/AnnouncementsView.vue'
+import Calendar from '@/components/Calendar.vue'
 import Clock from '@/components/Clock.vue'
 
 export default {
@@ -58,6 +59,7 @@ export default {
     ScheduleViewer,
     AssignmentsView,
     AnnouncementsView,
+    Calendar,
     Clock
   },
   data() {
