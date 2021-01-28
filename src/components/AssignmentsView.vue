@@ -17,47 +17,30 @@
         </div>
     </div>
     <!-- TODO: HAve an option to list by day -->
-    <h2 class="title is-2 has-text-white">Assignments</h2>
-    <div v-for="course in visibleCourses" :key="course.id" class="box">
-        <h5 class="title is-5">{{course.name}}</h5>
-        <table class="table is-fullwidth" v-if="assignmentsByCourse[course.id] && assignmentsByCourse[course.id].length > 0">
-            <thead>
-                <tr>
-                    <th width="80%">Assignment</th>
-                    <th>Points</th>
-                    <th>Due</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="assignment in assignmentsByCourse[course.id]" :key="assignment.id">
-                    <th class="has-text-left">
-                        <b-tooltip type="is-success" label="Marks the assignment as complete" position="is-right">
-                            <b-checkbox v-model="checkedAssignments[assignment.id]"/>
-                        </b-tooltip>
-                        
-                        <b-tooltip type="is-dark" label="Assignment is locked" position="is-right">
-                            <b-icon icon="lock" size="is-small" v-if="assignment.locked_for_user" />
-                        </b-tooltip>
-                        <a :href="assignment.html_url" :class="getAssignmentClass(assignment)">
-                            {{assignment.name}}
-                            <b-icon icon="star" v-if="assignment.dueSoon" />
-                        </a>
-                    </th>
-                    <td>{{assignment.points_possible}} </td>
-                    <td>{{getDueDifference(assignment.timeTillDue)}}</td>
-                </tr>
-            </tbody>
-        </table>
-        <p v-else class="has-text-centered">No assignments due!</p>
-    </div>
+    <h2 class="title is-2 has-text-white">Assignments Grouped By 
+        <b-select class="inline" v-model="groupBy">
+            <option value="course">Course</option>
+            <option value="day">Day</option>
+        </b-select>
+    </h2>
+    <ListByCourse v-if="groupBy === 'course'" :courses="visibleCourses" :assignments="assignments" :checkedAssignments="checkedAssignments" />
+    <ListByDay v-else :courses="visibleCourses" :assignments="assignments" :checkedAssignments="checkedAssignments" />
 </div>
 </template>
 
 <script>
+import ListByCourse from '@/components/assignments/ListByCourse.vue'
+import ListByDay from '@/components/assignments/ListByDay.vue'
+
 export default {
   props: ['courses', 'server'],
+  components: {
+      ListByCourse,
+      ListByDay
+  },
   data() {
       return {
+          groupBy: "course",
           assignments: [],
           checkedAssignments: {},
           loading: true,
@@ -98,12 +81,10 @@ export default {
           })
           return obj;
       },
-      assignmentsByCourse() {
-          let assignments = {}
-          this.courses.forEach(course => assignments[course.id] = [])
-          this.assignments.forEach(assn => assignments[assn.courseId].push(assn))
-          return assignments
-      },
+
+    //   assignmentsGrouped() {
+    //       return this.groupBy === "course" ? this.assignmentsByCourse : this.assignmentsByDay
+    //   }
       visibleCourses() {
           return this.courses.filter(course => course.visible)
       },
@@ -116,20 +97,11 @@ export default {
   },
   methods: {
       getDueDifference(delta) {
-          if(delta == -1) return "Late"
-          const hours = Math.round(delta / 1000 / 60 / 60)
-          if(hours > 24) return `${Math.round(hours / 24)} days`
-          else if(hours == 0) return "< hour"
-          return `${hours} hours`
-      },
-      getAssignmentClass({isLate, dueSoon}) {
-          if(isLate) {
-              return 'has-text-danger'
-          } else if(dueSoon) {
-              return 'warning'
-          }else{
-              return ''
-          }
+            if(delta == -1) return "Late"
+            const hours = Math.round(delta / 1000 / 60 / 60)
+            if(hours > 24) return `${Math.round(hours / 24)} days`
+            else if(hours == 0) return "< hour"
+            return `${hours} hours`
       },
       getDueDate(timestamp) {
           const date = new Date(timestamp)
@@ -155,13 +127,15 @@ export default {
                 .map(assignment => {
                     if(!(assignment.id in this.checkedAssignments))
                         this.$set(this.checkedAssignments, assignment.id, false)
-                    const delta = new Date(assignment.due_at).valueOf() - NOW;
+                    const date = new Date(assignment.due_at)
+                    const delta = date.valueOf() - NOW;
                     
                     const obj = {
                         ...assignment, 
                         courseId: course.id,
                         timeTillDue: delta > 0 ? delta : -1,
                         delta,
+                        date,
                         isLate: delta <= 0
                     }
                     return obj;
