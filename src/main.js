@@ -11,6 +11,9 @@ Vue.use(Buefy)
 
 Vue.config.productionTip = false
 
+//eslint-disable-next-line
+Vue.prototype.$VERSION = APPLICATION_VERSION
+
 Vue.prototype.$DISPLAYURL = process.env.VUE_APP_REAL_URL ? process.env.VUE_APP_REAL_URL : process.env.VUE_APP_URL
 
 new Vue({

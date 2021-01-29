@@ -35,6 +35,7 @@
           <div class="buttons is-centered">
             <b-button @click="openScheduler" type="is-primary" icon-left="calendar">Manage Schedule</b-button>
             <b-button @click="openCourseManager" type="is-dark" icon-left="school">Manage Courses</b-button>
+            <b-button @click="openSync" type="is-info" icon-left="export">Export / Import</b-button>
             <!--<b-button type="is-info" icon-left="sync" disabled>Sync</b-button>-->
           </div>
         </div>
@@ -86,6 +87,14 @@ export default {
     }
   },
   methods: {
+    openSync() {
+      this.$buefy.modal.open({
+        parent: this,
+        canCancel: false,
+        autoFocus: true,
+        component: () => import('@/components/SyncModal.vue')
+      })
+    },
     openCourseManager() {
       this.$buefy.modal.open({
         parent: this,
