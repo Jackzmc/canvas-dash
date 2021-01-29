@@ -30,7 +30,7 @@ async function main() {
                 token
             })
         })
-        instance.put('/:token', async (request, reply) => {
+        instance.post('/:token', async (request, reply) => {
             await db.query(
                 "UPDATE sync SET data = ? WHERE token = ?",
                 [JSON.stringify(request.body), request.params.token]
@@ -42,10 +42,14 @@ async function main() {
                 "SELECT data FROM sync WHERE token = ?",
                 [request.params.token]
             )
-            reply.send(rows.length > 0 ? {
-                raw: rows[0].data,
-                json: JSON.parse(rows[0].data)
-            }: null)
+            if(rows.length > 0) {
+                reply.send({
+                    raw: rows[0].data,
+                    json: JSON.parse(rows[0].data)
+                })
+            }else{
+                reply.callNotFound()
+            }
         })
         instance.setErrorHandler((error, request, reply) => {
             fastify.log.error(error)
