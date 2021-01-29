@@ -21,9 +21,6 @@
                 </b-field>
             </div>
             <div class="column is-5">
-                <b-message type="is-danger">
-                    The online sync feature is not implemented at this time.
-                </b-message>
                 <h4 class="title is-4">Sync</h4>
                 <p class="subtitle is-6">Sync your settings online via {{$options.SYNC_SERVER}}. Only your export code is shared.</p>
                 <hr>
@@ -31,10 +28,11 @@
                     <b-input :disabled="!$options.SYNC_SERVER" v-model="syncToken" />
                 </b-field>
                 <div class="buttons">
-                    <b-button :disabled="syncDisabled" type="is-info" icon-left="sync">Sync</b-button>
-                    <b-button @click="getSyncToken" type="is-dark" >Create Token</b-button>
+                    <!-- <b-button :disabled="syncDisabled" type="is-info" icon-left="sync">Auto Sync</b-button> -->
+                    <b-button @click="syncUp" :disabled="syncDisabled" type="is-info" icon-left="upload">Upload</b-button>
+                    <b-button @click="syncDown" :disabled="syncDisabled || !syncToken" type="is-info" icon-left="download">Download</b-button>
                 </div>
-                <p>Enter a sync token or generate a new one.</p>
+                <p>Enter a sync token or generate a new one by uploading</p>
 
             </div>
         </div>
@@ -50,7 +48,7 @@
 
 <script>
 export default {
-    SYNC_SERVER: null,
+    SYNC_SERVER: "https://api.jackz.me/canvas-dash-sync",
     data() {
         return {
             exportStr: null,
@@ -63,21 +61,51 @@ export default {
     },
     computed: {
         syncDisabled() {
-           return !this.$options.SYNC_SERVER || !this.syncToken || this.syncToken.trim().length == 0
+           return !this.$options.SYNC_SERVER || this.syncToken && this.syncToken.trim().length == 0
         }
     },
     methods: {
-        getSyncToken() {
-            fetch(`https://api.jackz.me/canvas-dash/sync?mode=create_token`, {methods: 'POST'})
+        syncUp() {
+            const token = this.syncToken || ""
+            const method = this.syncToken ? "PUT" : "POST"
+            fetch(`${this.$options.SYNC_SERVER}/${token}`, {method, body: this.exportStr, headers: {'Content-Type': 'application/json'}})
             .then(r => r.json())
             .then(json => {
                 this.syncToken = json.token
+                this.$buefy.toast.open({
+                    type: 'is-success',
+                    message: 'Successfully synchronized your data'
+                })
             })
             .catch(err => {
                 this.$buefy.dialog.alert({
                     type: 'is-danger',
                     title: 'Server Error',
                     message: `<b>The server returned an error. </b><br>${err.message}`
+                })
+            })
+        },
+        syncDown() { 
+            fetch(`${this.$options.SYNC_SERVER}/${this.syncToken}`, {method: 'GET'})
+            .then(r => r.json())
+            .then(json => {
+                if(json) {
+                    this.importStr = json.raw
+                    this.$buefy.toast.open({
+                        type: 'is-success',
+                        message: 'Successfully synchronized your data'
+                    })
+                }else {
+                    this.$buefy.toast.open({
+                        type: 'is-danger',
+                        message: 'Your sync token does not exist'
+                    })
+                }
+            })
+            .catch(() => {
+                this.$buefy.toast.open({
+                    type: 'is-danger',
+                    message: 'Your sync token does not exist'
                 })
             })
         },
@@ -89,7 +117,7 @@ export default {
                 this.$buefy.dialog.confirm({
                     title: 'Confirm Input',
                     message: 'Are you sure you want to import this code? It will overwrite all your current data.<br>'
-                        + `Code's App Version: ${json.appVersion}, current App Version: ${this.$VERSION}`,
+                        + `Import App Version: <b>${json.appVersion}</b><br>Your Version: <b>${this.$VERSION}</b>`,
                     confirmText: 'Import',
                     type: 'is-warning',
                     hasIcon: true,
