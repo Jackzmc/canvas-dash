@@ -25,7 +25,7 @@ export default {
   //TODO: Course pickler selection
   created() {
     document.addEventListener('swUpdated', this.updateAvailable, { once: true })
-    if(window.localStorage.canvas_met2a) {
+    if(window.localStorage.canvas_meta) {
         const metaJson = JSON.parse(window.localStorage.canvas_meta);
         this.server = metaJson.server
         //migration

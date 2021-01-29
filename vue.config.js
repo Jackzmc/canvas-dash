@@ -10,4 +10,7 @@ module.exports = {
         ]
       }
     },
+    pwa: {
+      name: 'Canvas Dashboard'
+    }
 }
