@@ -28,7 +28,7 @@
             <hr>
             <b-field>
                 <div class="buttons">
-                    <b-button native-type="submit" type="is-success" >Setup Dashboard</b-button>
+                    <b-button native-type="submit" type="is-success" :disabled="api == null || selectedServer == null">Setup Dashboard</b-button>
                     <b-button @click="openSync" type="is-info" icon-left="download">Import</b-button>
                     <b-tag>App v{{$VERSION}}</b-tag>
                 </div>

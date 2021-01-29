@@ -93,10 +93,7 @@ export default {
             .then(json => {
                 if(json) {
                     this.importStr = json.raw
-                    this.$buefy.toast.open({
-                        type: 'is-success',
-                        message: 'Successfully synchronized your data'
-                    })
+                    this.doImport()
                 }else {
                     this.$buefy.toast.open({
                         type: 'is-danger',
