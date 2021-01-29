@@ -124,7 +124,7 @@ export default {
                     onConfirm: () => {
                         window.localStorage.canvas_meta = JSON.stringify(json.meta)
                         window.localStorage.canvas_schedule = JSON.stringify(json.schedule)
-                        window.reload()
+                        window.location.reload()
                     }
                 })
             }catch(err) {
