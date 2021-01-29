@@ -1,7 +1,6 @@
 <template>
     <div class="box">
-        <h4 class="title is-2">Canvas Dashboard</h4>
-        <p class="subtitle is-4">Initial Setup</p>
+        <h4 class="title is-2">Canvas Dashboard Initial Setup</h4>
         <hr>
         <p>You need to get your canvas api key for this application to work. Go to your account -> settings and scroll down to the "Approved Integrations" category and click new access token. Enter any name for the purpose you want and copy the token.</p>
         <p>Sites must be proxied if they do not have a valid CORS configuration. Therefore most canvas sites do require manual setup.</p>
@@ -11,7 +10,7 @@
                 <b-input minlength="60" maxlength="70" required v-model="api" placeholder="Enter your canvas api key" />
             </b-field>
             <b-field label="Server">
-                <b-select v-model="selectedServer" placeholder="Choose a server">
+                <b-select v-model="selectedServer" placeholder="Choose a supported server">
                     <option v-for="server in servers" :key="server.id" :value="server">
                         {{server.title}}
                         <span v-if="server.proxied">(Proxied via proxy.jackz.me)</span>
@@ -19,18 +18,20 @@
                 </b-select>
             </b-field>
             <hr> 
-            <h5 class="title is-5">Initial Schedule (optional)</h5>
-            <p class="subtitle is-6">You can change and setup your schedule at any time later.</p>
-            <b-button @click="openScheduler" type="is-primary" :disabled="schedulerDisabled" :loading="loadingCourses">Manage Schedule</b-button>
-            <p v-if="schedulerDisabled" class="has-text-danger">Please enter an API Key & select a server to open the scheduler.</p>
-            <hr>
-            <h5 class="title is-5">Course Selection (optional)</h5>
-            <p class="subtitle is-6">You can change what courses you want to see later.</p>
-            <b-button @click="openCourseManager" type="is-dark" :disabled="schedulerDisabled" :loading="loadingCourses">Manage Courses</b-button>
-            <p v-if="schedulerDisabled" class="has-text-danger">Please enter an API Key & select a server to open the course manager.</p>
+            <h5 class="title is-5">Optional Setup</h5>
+            <p class="subtitle is-6">You can change these items any time</p>
+            <div class="buttons">
+                <b-button @click="openScheduler" type="is-primary" :disabled="schedulerDisabled" :loading="loadingCourses">Manage Schedule</b-button>
+                <b-button @click="openCourseManager" type="is-dark" :disabled="schedulerDisabled" :loading="loadingCourses">Manage Courses</b-button>
+            </div>
+            <p v-if="schedulerDisabled" class="has-text-danger">Please enter an API Key & select a server to open the scheduler or course manager.</p>
             <hr>
             <b-field>
-                <b-button native-type="submit" type="is-success" >Setup Dashboard</b-button>
+                <div class="buttons">
+                    <b-button native-type="submit" type="is-success" >Setup Dashboard</b-button>
+                    <b-button @click="openSync" type="is-info" icon-left="download">Import</b-button>
+                    <b-tag>App v{{$VERSION}}</b-tag>
+                </div>
             </b-field>
         </form>
     </div>
@@ -64,6 +65,17 @@ export default {
         }
     },
     methods: {
+        openSync() {
+            this.$buefy.modal.open({
+                parent: this,
+                canCancel: false,
+                autoFocus: true,
+                props: {
+                    isFromSetup: true
+                },
+                component: () => import('@/components/SyncModal.vue')
+            })
+        },
         async openCourseManager() {
             if(!this.courses) {
                 await this.fetchCourses()

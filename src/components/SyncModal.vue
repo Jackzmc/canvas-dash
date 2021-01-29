@@ -1,7 +1,7 @@
 <template>
 <div class="modal-card" style="width: auto">
     <header class="modal-card-head">
-        <p class="modal-card-title">Sync Modal</p>
+        <p class="modal-card-title">Data Sync</p>
         <button
             type="button"
             class="delete"
@@ -10,7 +10,7 @@
     <section class="modal-card-body">
         <div class="columns">
             <div class="column">
-                <b-field label="Export Code">
+                <b-field v-if="!isFromSetup" label="Export Code">
                     <b-input type="textarea" v-model="exportStr" />
                 </b-field>
                 <b-field label="Import Code">
@@ -21,7 +21,7 @@
                 </b-field>
             </div>
             <div class="column is-5">
-                <h4 class="title is-4">Sync</h4>
+                <h4 class="title is-4">Online Sync</h4>
                 <p class="subtitle is-6">Sync your settings online via {{$options.SYNC_SERVER}}. Only your export code is shared.</p>
                 <hr>
                 <b-field label="Sync Token">
@@ -29,10 +29,11 @@
                 </b-field>
                 <div class="buttons">
                     <!-- <b-button :disabled="syncDisabled" type="is-info" icon-left="sync">Auto Sync</b-button> -->
-                    <b-button @click="syncUp" :disabled="syncDisabled" type="is-info" icon-left="upload">Upload</b-button>
+                    <b-button v-if="!isFromSetup" @click="syncUp" :disabled="syncDisabled" type="is-info" icon-left="upload">Upload</b-button>
                     <b-button @click="syncDown" :disabled="syncDisabled || !syncToken" type="is-info" icon-left="download">Download</b-button>
                 </div>
-                <p>Enter a sync token or generate a new one by uploading</p>
+                <p v-if="isFromSetup">Enter your online sync token to download your data</p>
+                <p v-else>Enter a sync token or generate a new one by uploading your current data</p>
 
             </div>
         </div>
@@ -48,6 +49,7 @@
 
 <script>
 export default {
+    props: ['isFromSetup'],
     SYNC_SERVER: "https://api.jackz.me/canvas-dash-sync",
     data() {
         return {
