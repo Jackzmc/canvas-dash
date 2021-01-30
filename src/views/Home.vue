@@ -10,7 +10,7 @@
               <b-icon type="is-white" icon="information-outline"></b-icon>
               <span class="has-text-white">Dashboard</span>
           </template>
-          <AssignmentsView :courses="courses" :server="server"/>
+          <AssignmentsView :courses="courses" :server="server" :visibleCourses="visibleCourses"/>
         </b-tab-item>
         <b-tab-item label="Announcements" value="announcements">
             <template #header>
@@ -38,6 +38,12 @@
             <b-button @click="openSync" type="is-info" icon-left="export">Export / Import</b-button>
             <!--<b-button type="is-info" icon-left="sync" disabled>Sync</b-button>-->
           </div>
+        </div>
+        <div class="box">
+          <h4 class="title is-4">Direct Canvas Links</h4>
+          <ul>
+            <li v-for="course in visibleCourses" :key="course.id"><a :href="'https://' + server.domain + '/courses/' + course.id">{{course.name}}</a></li> 
+          </ul>
         </div>
       </div>
     </div>
@@ -85,6 +91,11 @@ export default {
                 return entry;
         })
     }
+  },
+  computed: {
+    visibleCourses() {
+        return this.courses.filter(course => course.visible)
+    },
   },
   methods: {
     openSync() {

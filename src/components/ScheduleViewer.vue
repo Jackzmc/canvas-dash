@@ -30,14 +30,13 @@
     </table>
 </div>
 </template>
-<!-- TODO: Implement next class highlights in view -->
+<!-- TFIXME: fix incorrect active entry -->
 
 
 <script>
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 export default {
-    //TODO: add schedule to props
   props: ['courses', 'schedule'],
   name: 'ScheduleViewer',
   data() {

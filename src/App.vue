@@ -22,7 +22,6 @@ export default {
       setupModal: null,
     }
   },
-  //TODO: Course pickler selection
   created() {
     document.addEventListener('swUpdated', this.updateAvailable, { once: true })
     if(window.localStorage.canvas_meta) {
@@ -36,7 +35,6 @@ export default {
         } 
 
         this.isSetup = true;
-        //TODO: Instead pull canvas_app_key from local storage, cache courses possibly?
         fetch(this.server.url + '/api/v1/courses?include[]=tabs&per_page=100', {
           headers: {
             'Authorization': "Bearer " + this.server.api

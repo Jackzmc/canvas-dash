@@ -37,7 +37,6 @@
     </div>
 </template>
 
-<!-- TODO: Do a test run for 401 on api key inputted, or before submit. -->
 <script>
 import SERVERS from '@/data/servers.json'
 export default {

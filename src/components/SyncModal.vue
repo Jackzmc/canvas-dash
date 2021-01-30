@@ -110,7 +110,6 @@ export default {
         },
         doImport() {
             try {
-                //TODO: Implement version check
                 const json = JSON.parse(this.importStr)
                 if(!json.meta) throw new Error('Missing field meta');
                 this.$buefy.dialog.confirm({

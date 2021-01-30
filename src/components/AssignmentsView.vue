@@ -16,7 +16,6 @@
             </div>
         </div>
     </div>
-    <!-- TODO: HAve an option to list by day -->
     <h2 class="title is-2 has-text-white">Assignments Grouped By 
         <b-select class="inline" v-model="groupBy">
             <option value="course">Course</option>
@@ -33,7 +32,7 @@ import ListByCourse from '@/components/assignments/ListByCourse.vue'
 import ListByDay from '@/components/assignments/ListByDay.vue'
 
 export default {
-  props: ['courses', 'server'],
+  props: ['courses', 'server', 'visibleCourses'],
   components: {
       ListByCourse,
       ListByDay
@@ -47,7 +46,6 @@ export default {
       }
   },
   created() {
-        //TODO: Implement course-selection
         //TODO: Implement desktop notifications when assignment is near-due
         const assignments = JSON.parse(window.localStorage.canvas_meta).assignments || []
         assignments.forEach(assignments => {
@@ -85,9 +83,6 @@ export default {
     //   assignmentsGrouped() {
     //       return this.groupBy === "course" ? this.assignmentsByCourse : this.assignmentsByDay
     //   }
-      visibleCourses() {
-          return this.courses.filter(course => course.visible)
-      },
       assignmentsDueSoon() {
           return this.assignments
           .filter(assignment => !this.checkedAssignments[assignment.id])
