@@ -65,7 +65,10 @@ async function main() {
     // Run the server!
     fastify.listen(PORT, (err) => {
         if (err) {
-            fastify.log.error(err)
+            if(process.env.NODE_ENV != "production")
+                fastify.log.error(err)
+            else
+                console.error('[Error]', err.message)
             process.exit(1)
         }
         fastify.log.info(`Running on prefix: ${PREFIX}`)
