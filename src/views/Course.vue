@@ -5,6 +5,12 @@
       <div class="column">
         <h4 class="title is-4 has-text-white">Course Details</h4>
         <p class="subtitle is-6 has-text-white">{{course.name}}</p>
+        <hr>
+        <div class="box">
+          <b-field label="Notes">
+            <b-input lazy v-model.lazy="notes" type="textarea" />
+          </b-field>
+        </div>
       </div>
       <div class="column is-4">
         <div class="box">
@@ -46,6 +52,7 @@ export default {
     if(courseInfo[this.course.id]) {
       this.links = courseInfo[this.course.id].links
     }
+    this.debounceSave = debounce(this, this.save, 300)
   },
   data() {
     return {
@@ -54,12 +61,19 @@ export default {
         url: null,
         name: null
       },
-      zoomFinderLoading: false
+      notes: null,
+      zoomFinderLoading: false,
+      debounceSave: null
     }
   },
   computed: {
     course() {
       return this.courses.find(course => course.id == this.$route.params.course)
+    }
+  },
+  watch: {
+    notes() {
+      this.debounceSave()
     }
   },
   methods: {
@@ -70,9 +84,13 @@ export default {
       this.save()
     },
     save() {
+      console.debug('save')
       let courseInfo = window.localStorage.canvas_course_info ? JSON.parse(window.localStorage.canvas_course_info) : {}
       if(!courseInfo[this.course.id]) courseInfo[this.course.id] = {links: []}
-      courseInfo[this.course.id].links = this.links
+      courseInfo[this.course.id] = {
+        links: this.links,
+        notes: this.notes
+      }
       window.localStorage.canvas_course_info = JSON.stringify(courseInfo)
     },
     async findZoomLink() {
@@ -142,5 +160,12 @@ async function searchZoomLink(courseID, server) {
     return match[0]
   }
 }
-
+function debounce(context, func, delay) {
+  let inDebounce
+  return function() {
+    const args = arguments
+    clearTimeout(inDebounce)
+    inDebounce = setTimeout(() => func.apply(context, args), delay)
+  }
+}
 </script>
