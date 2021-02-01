@@ -79,6 +79,8 @@ export default {
     if(window.localStorage.canvas_schedule) {
         this.schedule = JSON.parse(window.localStorage.canvas_schedule)
         .map(entry => {
+            const timestamp = new Date()
+            timestamp.setHours
             if(entry.course && entry.course !== "none") {
                 const classData = this.courses.find(c => c.id == entry.course)
                 if(!classData) {
@@ -88,7 +90,7 @@ export default {
                 const cleanName = classData.name.split(" ").slice(0, 2).join(" ")
                 return {...entry, course: classData, cleanName, hasCanvasData: true, type: "COURSE"}
             } else
-                return entry;
+              return entry;
         })
     }
   },

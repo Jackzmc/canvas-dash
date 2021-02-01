@@ -66,7 +66,14 @@ export default {
     addLink() {
       this.$set(this.links, this.formAddLink.url, this.formAddLink.name)
       this.formAddLink.url = null;
-      this.formAddLink.name = null
+      this.formAddLink.name = null,
+      this.save()
+    },
+    save() {
+      let courseInfo = window.localStorage.canvas_course_info ? JSON.parse(window.localStorage.canvas_course_info) : {}
+      if(!courseInfo[this.course.id]) courseInfo[this.course.id] = {links: []}
+      courseInfo[this.course.id].links = this.links
+      window.localStorage.canvas_course_info = JSON.stringify(courseInfo)
     },
     async findZoomLink() {
       this.zoomFinderLoading = true;
@@ -74,8 +81,10 @@ export default {
         const link = await searchZoomLink(this.course.id, this.server)
         this.zoomFinderLoading = false
         if(link) {
-          if(!this.links[link])
+          if(!this.links[link]) {
             this.$set(this.links, link, "Zoom Link")
+            this.save()
+          }
         }else {
           alert('Sorry, no zoom links could be found')
         }
