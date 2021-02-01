@@ -1,6 +1,6 @@
 {
   "name": "canvas-dash",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -15,6 +15,7 @@
     "core-js": "^3.6.5",
     "register-service-worker": "^1.7.1",
     "vue": "^2.6.11",
+    "vue-markdown": "^2.2.4",
     "vue-router": "^3.2.0"
   },
   "devDependencies": {

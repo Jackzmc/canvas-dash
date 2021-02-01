@@ -26,6 +26,14 @@
             </template>
             <Calendar  :courses="courses" :server="server" />
         </b-tab-item>
+        <b-tab-item label="Changelog" value="changelog">
+            <template #header>
+                <b-icon type="is-white" icon="post"></b-icon>
+                <span class="has-text-white">Changelog</span>
+            </template>
+            <Changelog v-if="changelog" />
+            <p v-else></p>
+        </b-tab-item>
       </b-tabs>
       </div>
       <div class="column sticky">
@@ -56,6 +64,7 @@
 import ScheduleViewer from '@/components/ScheduleViewer.vue'
 import AssignmentsView from '@/components/AssignmentsView.vue'
 import AnnouncementsView from '@/components/AnnouncementsView.vue'
+import Changelog from '@/components/Changelog.vue'
 import Calendar from '@/components/Calendar.vue'
 import Clock from '@/components/Clock.vue'
 
@@ -67,12 +76,14 @@ export default {
     AssignmentsView,
     AnnouncementsView,
     Calendar,
-    Clock
+    Clock,
+    Changelog
   },
   data() {
     return {
       schedule: [],
-      tabIndex: "dash"
+      tabIndex: "dash",
+      changelog: false
     }
   },
   created() {
@@ -92,6 +103,15 @@ export default {
             } else
               return entry;
         })
+    }
+  },
+  watch: {
+    tabIndex(n) {
+      console.log(n)
+      if(n === "changelog" && !this.changelog) {
+        console.debug('Fetching changelog...')
+        this.changelog = true;
+      }
     }
   },
   computed: {
