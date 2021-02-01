@@ -22,7 +22,7 @@
                         </b-tooltip>
                         <a :href="assignment.html_url" :class="getAssignmentClass(assignment)">
                             <b-tooltip :label="assignment.courseTitle">
-                                {{assignment.name}}
+                                {{getName(assignment.name)}}
                             </b-tooltip>
                             <b-icon icon="star" v-if="assignment.dueSoon" />
                         </a>
@@ -40,13 +40,21 @@
 <script>
 export default {
     props: ['courses', 'assignments', 'checkedAssignments'],
+    data() {
+        return {
+            todayDate: null,
+            tomorrowDate: null
+        }
+    },
+    created() {
+        const date = new Date()
+        this.todayDate = date.toLocaleDateString('sv')
+        this.tomorrowDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1).toLocaleDateString('sv')
+    },
     computed: {
         assignmentsByDay() {
             //Group the assignments by putting their day #
             let days = {"Today": [], "Tomorrow": []};
-            const date = new Date()
-            const todayDate = date.toLocaleDateString('sv')
-            const tomorrowDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1).toLocaleDateString('sv')
             this.assignments.forEach(assignment => {
                 const prefix = assignment.date.toLocaleDateString('sv')
                 const course = this.courses.find(course => course.id === assignment.courseId)
@@ -54,10 +62,6 @@ export default {
                 if(!days[prefix]) days[prefix] = []
                 days[prefix].push(assignment)
             })
-            days['Today'] = days[todayDate]
-            days['Tomorrow'] = days[tomorrowDate]
-            delete days[todayDate]
-            delete days[tomorrowDate]
             return days
         },
         days() {
@@ -77,6 +81,11 @@ export default {
         }
     },
     methods: {
+        getName(name) {
+            if(name === this.todaysDate) return "Today"
+            else if(name === this.tomorrowDate) return "Tomorrow"
+            else return name
+        },
         getDueDifference(delta) {
             if(delta == -1) return "Late"
             const hours = Math.round(delta / 1000 / 60 / 60)
