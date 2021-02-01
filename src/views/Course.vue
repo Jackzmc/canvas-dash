@@ -3,8 +3,16 @@
   <br>
     <div class="columns">
       <div class="column">
-        <h4 class="title is-4 has-text-white">Course Details</h4>
-        <p class="subtitle is-6 has-text-white">{{course.name}}</p>
+        <div class="columns">
+          <div class="column is-1">
+             <b-button tag="router-link" to="/" type="is-info" size="is-large" icon-left="arrow-left-circle" />
+          </div>
+          <div class="column">
+            <h4 class="title is-4 has-text-white">Course Details</h4>
+            <p class="subtitle is-6 has-text-white">{{course.name}}</p>
+          </div>
+        </div>
+
         <hr>
         <div class="box">
           <b-field label="Notes">
