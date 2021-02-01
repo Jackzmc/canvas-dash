@@ -111,7 +111,7 @@ export default {
                 headers: {
                     'Authorization': "Bearer " + this.server.api
                 },
-                cache: "force-cache"
+                //cache: "force-cache"
             })
             .then(r => r.json())
             .then(body => {
