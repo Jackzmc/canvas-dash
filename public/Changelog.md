@@ -1,3 +1,6 @@
+## v1.2.1
+* Fix zoom link finder failing if pages disabled for course
+
 # v1.2.0
 + Add changelog
 

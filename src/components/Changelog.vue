@@ -19,7 +19,7 @@ export default {
         }
     },
     created() {
-        fetch('/Changelog.md')
+        fetch('https://raw.githubusercontent.com/Jackzmc/canvas-dash/master/public/Changelog.md')
         .then(response => response.text())
         .then(text => this.markdown = text)
     }

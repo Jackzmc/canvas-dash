@@ -137,35 +137,41 @@ async function searchZoomLink(courseID, server) {
 
   //Search via PAGES (Needs to view each page.)
   response = await fetch(server.url + `/api/v1/courses/${courseID}/pages`, options)
-  json = (await response.json()).filter(page => PAGE_TITLE_REGEX.test(page.title))
-  //Find a valid page:
-  for(const page of json) {
-    const response = await fetch(server.url + `/api/v1/courses/${courseID}/pages/${page.url}`, options)
-    const json = await response.json()
+  if(response.status == 200) {
+    json = (await response.json()).filter(page => PAGE_TITLE_REGEX.test(page.title))
+    //Find a valid page:
+    for(const page of json) {
+      const response = await fetch(server.url + `/api/v1/courses/${courseID}/pages/${page.url}`, options)
+      const json = await response.json()
 
-    const match = json.body.match(ZOOM_LINK_REGEX)
-    if(match && match.length === 3) {
-      return match[0]
+      const match = json.body.match(ZOOM_LINK_REGEX)
+      if(match && match.length === 3) {
+        return match[0]
+      }
     }
   }
   
   //Search via MODULES
   response = await fetch(server.url + `/api/v1/courses/${courseID}/modules?include[]=items`, options)
-  json = (await response.json())
-  for(const module of json) {
-    for(const item of module.items) {
-      const match = ZOOM_LINK_REGEX.test(item.external_url)
-      if(match) return item.external_url
+  if(response.status == 200) {
+    json = (await response.json())
+    for(const module of json) {
+      for(const item of module.items) {
+        const match = ZOOM_LINK_REGEX.test(item.external_url)
+        if(match) return item.external_url
+      }
     }
   }
 
   //Find via syllabus
   response = await fetch(server.url + `/api/v1/courses/${courseID}?include[]=syllabus_body`, options)
-  json = (await response.json())
-  
-  const match = json.syllabus_body.match(ZOOM_LINK_REGEX)
-  if(match && match.length === 3) {
-    return match[0]
+  if(response.status == 200) {
+    json = (await response.json())
+    
+    const match = json.syllabus_body.match(ZOOM_LINK_REGEX)
+    if(match && match.length === 3) {
+      return match[0]
+    }
   }
 }
 function debounce(context, func, delay) {
