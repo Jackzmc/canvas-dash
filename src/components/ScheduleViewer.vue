@@ -51,7 +51,8 @@ export default {
     setInterval(() => {
         const currentMS = Date.now()
         let smallestDifference = -1;
-        this.todaysSchedule = this.schedule.forEach(({id,timestamp}) => {
+        this.todaysSchedule = this.schedule.forEach(({id,starts}) => {
+            const timestamp = getTimestampFromTime(starts)
             const difference = currentMS - timestamp.valueOf()
             if(difference < smallestDifference || smallestDifference == -1) {
                 this.activeEntryID = id,
