@@ -1,3 +1,8 @@
+# v1.3.0
+* Add discord-link finder
+* Separate automatic links & user-created links
+* Search announcements for links as well
+
 ## v1.2.1
 * Fix zoom link finder failing if pages disabled for course
 
