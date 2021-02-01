@@ -122,6 +122,7 @@ export default {
                     onConfirm: () => {
                         window.localStorage.canvas_meta = JSON.stringify(json.meta)
                         window.localStorage.canvas_schedule = JSON.stringify(json.schedule)
+                        window.localStorage.canvas_course_info = JSON.stringify(json.course_info);
                         window.location.reload()
                     }
                 })
@@ -139,7 +140,8 @@ export default {
                 date: new Date(),
                 appVersion: this.$VERSION,
                 meta: JSON.parse(window.localStorage.canvas_meta),
-                schedule: window.localStorage.canvas_schedule ? JSON.parse(window.localStorage.canvas_schedule) : null
+                schedule: window.localStorage.canvas_schedule ? JSON.parse(window.localStorage.canvas_schedule) : null,
+                course_info: window.localStorage.canvas_course_info ? JSON.parse(window.localStorage.canvas_course_info) : null
             }
             this.exportStr = JSON.stringify(exportStr)
         }
