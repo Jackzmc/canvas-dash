@@ -1,8 +1,9 @@
-# v1.3.3
+# v1.3.4
 * Fix assignments not saving being checked
 * Make course links open in new tab/window (target: _blank)
 * Store assignments group by preference
 * Correctly display today/tomorrow assignments
+* Fix assignments view not remembering checked (oops)
 
 # v1.3.0
 * Add discord-link finder

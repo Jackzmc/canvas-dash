@@ -50,7 +50,7 @@ export default {
   },
   created() {
         //TODO: Implement desktop notifications when assignment is near-due
-        const meta = JSON.parse(window.localStorage.canvas_meta) || []
+        const meta = JSON.parse(window.localStorage.canvas_meta) || {assignments: [], groupAssignments: "course"}
         //Set group by. need to store this.
         if(meta.groupAssignments && meta.groupAssignments === "course" || meta.groupAssignments === "day")
             this.groupBy = meta.groupAssignments
