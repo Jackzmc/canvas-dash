@@ -47,9 +47,9 @@
             <!--<b-button type="is-info" icon-left="sync" disabled>Sync</b-button>-->
           </div>
         </div>
-        <div class="box">
+        <div class="box content">
           <h4 class="title is-4">Direct Canvas Links</h4>
-          <ul>
+          <ul class="has-text-left">
             <li v-for="course in visibleCourses" :key="course.id"><a :href="'https://' + server.domain + '/courses/' + course.id">{{course.name}}</a></li> 
           </ul>
         </div>

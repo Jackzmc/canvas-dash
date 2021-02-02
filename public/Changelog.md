@@ -1,3 +1,6 @@
+# v1.3.1
+* Fix assignments not saving being checked
+
 # v1.3.0
 * Add discord-link finder
 * Separate automatic links & user-created links

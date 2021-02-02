@@ -28,6 +28,9 @@
 </template>
 
 <script>
+//Currently 14 days. Used to clear any assignments that are this many milliseconds old
+const CHECKED_ASSIGNMENT_DELTA = 1000 * 60 * 60 * 24 * 14;
+
 import ListByCourse from '@/components/assignments/ListByCourse.vue'
 import ListByDay from '@/components/assignments/ListByDay.vue'
 
@@ -48,10 +51,10 @@ export default {
   created() {
         //TODO: Implement desktop notifications when assignment is near-due
         const assignments = JSON.parse(window.localStorage.canvas_meta).assignments || []
-        assignments.forEach(assignments => {
+        assignments.forEach(assignment => {
             //Only restore IF its not been 14 days. don't need to hold onto old visibilities
-            if(Date.now() - assignments.posted <= 1000 * 60 * 60 * 24 * 14)
-                this.$set(this.checkedAssignments, assignments.id, true)
+            if(Date.now() - assignment.due <= CHECKED_ASSIGNMENT_DELTA)
+                this.$set(this.checkedAssignments, assignment.id, true)
         })
         window.onbeforeunload = () => {
             const preMeta = JSON.parse(window.localStorage.canvas_meta)
@@ -62,7 +65,7 @@ export default {
                     .map(assignment => {
                         return {
                             id: assignment.id,
-                            posted: new Date(assignment.posted_at).valueOf()
+                            due: new Date(assignment.due_at).valueOf()
                         }
                     })
             })
