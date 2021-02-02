@@ -50,8 +50,11 @@ export default {
   },
   created() {
         //TODO: Implement desktop notifications when assignment is near-due
-        const assignments = JSON.parse(window.localStorage.canvas_meta).assignments || []
-        assignments.forEach(assignment => {
+        const meta = JSON.parse(window.localStorage.canvas_meta) || []
+        //Set group by. need to store this.
+        if(meta.groupAssignments && meta.groupAssignments === "course" || meta.groupAssignments === "day")
+            this.groupBy = meta.groupAssignments
+        meta.assignments.forEach(assignment => {
             //Only restore IF its not been 14 days. don't need to hold onto old visibilities
             if(Date.now() - assignment.due <= CHECKED_ASSIGNMENT_DELTA)
                 this.$set(this.checkedAssignments, assignment.id, true)
@@ -60,6 +63,7 @@ export default {
             const preMeta = JSON.parse(window.localStorage.canvas_meta)
             window.localStorage.canvas_meta = JSON.stringify({
                 ...preMeta,
+                groupAssignments: this.groupBy,
                 assignments: this.assignments
                     .filter(assignment => this.checkedAssignments[assignment.id]) //Only save checked
                     .map(assignment => {

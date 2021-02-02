@@ -1,7 +1,7 @@
 <template>
 <div>
     <div v-for="day in days" :key="day" class="box">
-        <h5 class="title is-5">{{day}}</h5>
+        <h5 class="title is-5">{{getDayName(day)}}</h5>
         <table class="table is-fullwidth" v-if="assignmentsByDay[day] && assignmentsByDay[day].length > 0">
             <thead>
                 <tr>
@@ -22,7 +22,7 @@
                         </b-tooltip>
                         <a :href="assignment.html_url" :class="getAssignmentClass(assignment)">
                             <b-tooltip :label="assignment.courseTitle">
-                                {{getName(assignment.name)}}
+                                {{assignment.name}}
                             </b-tooltip>
                             <b-icon icon="star" v-if="assignment.dueSoon" />
                         </a>
@@ -54,7 +54,7 @@ export default {
     computed: {
         assignmentsByDay() {
             //Group the assignments by putting their day #
-            let days = {"Today": [], "Tomorrow": []};
+            let days = {};
             this.assignments.forEach(assignment => {
                 const prefix = assignment.date.toLocaleDateString('sv')
                 const course = this.courses.find(course => course.id === assignment.courseId)
@@ -65,10 +65,7 @@ export default {
             return days
         },
         days() {
-            return [
-                "Today",
-                "Tomorrow",
-                ...Object.keys(this.assignmentsByDay)
+            return Object.keys(this.assignmentsByDay)
                 .filter(key => key[0] != "T")
                 .sort((a, b) => {
                     const [y1,m1,d1] = a.split('-')
@@ -77,11 +74,10 @@ export default {
                     const timestampB = new Date(y2,m2 - 1,d2).valueOf()
                     return timestampA - timestampB
                 })
-            ]
         }
     },
     methods: {
-        getName(name) {
+        getDayName(name) {
             if(name === this.todaysDate) return "Today"
             else if(name === this.tomorrowDate) return "Tomorrow"
             else return name
