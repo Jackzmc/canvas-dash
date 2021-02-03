@@ -52,7 +52,10 @@ async function main() {
             }
         })
         instance.setErrorHandler((error, request, reply) => {
-            fastify.log.error(error)
+            if(process.env.NODE_ENV != "production")
+                fastify.log.error(error)
+            else
+                console.error(`[Error::${request.id}]`, error)
             reply.status(500).send({
                 error: 'INTERNAL SERVER ERROR',
                 code: 'INTERNAL_SERVER_ERROR',
