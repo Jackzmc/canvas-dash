@@ -1,3 +1,8 @@
+# v1.4.0
++ Re-arranged buttons on home
++ Sync remember token / UI improvements
++ Can now edit schedules
+
 # v1.3.4
 * Fix assignments not saving being checked
 * Make course links open in new tab/window (target: _blank)

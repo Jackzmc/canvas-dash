@@ -27,12 +27,18 @@
                     <td>{{entry.days.join(" ")}}</td>
                     <td class="has-text-left">{{entry.starts}}</td>
                     <td class="has-text-left">{{entry.ends}}</td>
-                    <td><b-button @click="deleteEntry(entry.id)" type="is-danger" icon-left="delete"></b-button></td>
+                    <td>
+                        <div class="buttons">
+                            <b-button @click="editEntry(entry)" type="is-warning" icon-left="pencil"></b-button>
+                            <b-button @click="deleteEntry(entry.id)" type="is-danger" icon-left="delete"></b-button>
+                        </div>
+                    </td>
                 </tr>
             </tbody>
         </table>
         <hr>
-        <h5 class="title is-5">Add New Schedule Entry</h5>
+        <h5 v-if="edit" class="title is-5">Edit Schedule Entry</h5>
+        <h5 v-else class="title is-5">Add New Schedule Entry</h5>
         <form @submit.prevent="submitEntry">
             <b-field label="Name">
                 <b-input v-model="addEntry.name" placeholder="Lunch" required />
@@ -100,7 +106,12 @@
                 </b-field>
             </b-field>
             <b-field>
-                <b-button :disabled="cantSubmit" native-type="submit" type="is-primary">Add Entry</b-button>
+                <div class="buttons">
+                    <b-button :disabled="cantSubmit" native-type="submit" type="is-primary" :icon-left="edit?'content-save':'plus'">
+                        {{edit ? 'Save Entry' : 'Add New Entry'}}
+                    </b-button>
+                    <b-button v-if="edit" @click="edit = null" native-type="reset" type="is-secondary">Cancel</b-button>
+                </div>
             </b-field>
             <br>
         </form>
@@ -132,6 +143,7 @@ export default {
                 starts: null,
                 ends: null
             },
+            edit: null,
             schedule: []
         }   
     },
@@ -148,14 +160,25 @@ export default {
     },
     methods: {
         submitEntry() {
-            this.schedule.push({
+            const entry = {
                 name: this.addEntry.name,
                 course: this.addEntry.course === "none" ? null : this.addEntry.course,
                 days: this.addEntry.days,
                 starts: this.addEntry.starts.toUpperCase(),
                 ends: this.addEntry.ends.toUpperCase(),
                 id: this.addEntry.name + this.addEntry.days.toString()
-            })
+            }
+            if(this.edit) {
+                const index = this.schedule.findIndex(v => v.id === this.edit)
+                if(index > -1) {
+                    this.$set(this.schedule, index, entry)
+                }else{
+                    alert("Failed to save your changes: Schedule entry could not be found.")
+                }
+            }else{
+                this.schedule.push(entry)
+            }
+
             this.addEntry.name = null;
             this.addEntry.course = "none"
             this.addEntry.days = []
@@ -165,6 +188,10 @@ export default {
         submit() {
             this.$emit('submit', this.schedule)
             this.$emit('close')
+        },
+        editEntry(entry) {
+            this.edit = entry.id
+            this.addEntry = {...entry, course: entry.course?entry.course.id:'none'}
         },
         deleteEntry(id) {
             for(let i = 0; i < this.schedule.length; i++) {

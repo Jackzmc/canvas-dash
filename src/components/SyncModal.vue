@@ -20,16 +20,24 @@
                     <b-button type="is-danger" @click="doImport" :disabled="!importStr">Import</b-button>
                 </b-field>
             </div>
-            <div class="column is-5">
+            <div class="column is-6">
                 <h4 class="title is-4">Online Sync</h4>
                 <p class="subtitle is-6">Sync your settings online via {{$options.SYNC_SERVER}}. Only your export code is shared.</p>
                 <hr>
                 <b-field label="Sync Token">
                     <b-input :disabled="!$options.SYNC_SERVER" v-model="syncToken" />
                 </b-field>
+                <b-field v-if="!syncToken&&!isFromSetup">
+                    <b-checkbox v-model="saveToken">
+                        Save Token
+                    </b-checkbox>
+                </b-field>
                 <div class="buttons">
                     <!-- <b-button :disabled="syncDisabled" type="is-info" icon-left="sync">Auto Sync</b-button> -->
-                    <b-button v-if="!isFromSetup" @click="syncUp" :disabled="syncDisabled" type="is-info" icon-left="upload">Upload</b-button>
+                    <b-button v-if="!isFromSetup" @click="syncUp" :disabled="syncDisabled" type="is-info" icon-left="upload">
+                        <span v-if="syncToken">Upload</span>
+                        <span v-else>Generate Token</span>
+                    </b-button>
                     <b-button @click="syncDown" :disabled="syncDisabled || !syncToken" type="is-info" icon-left="download">Download</b-button>
                 </div>
                 <p v-if="isFromSetup">Enter your online sync token to download your data</p>
@@ -55,10 +63,14 @@ export default {
         return {
             exportStr: null,
             importStr: null,
-            syncToken: null
+            syncToken: null,
+            saveToken: true,
         }
     },
     created() {
+        if(window.localStorage.canvas_sync_token && this.saveToken && !this.isFromSetup) {
+            this.syncToken = window.localStorage.canvas_sync_token
+        }
         this.getExportStr()
     },
     computed: {
@@ -71,8 +83,22 @@ export default {
             const token = this.syncToken || ""
             const method = this.syncToken ? "PUT" : "POST"
             fetch(`${this.$options.SYNC_SERVER}/${token}`, {method, body: this.exportStr, headers: {'Content-Type': 'application/json'}})
-            .then(r => r.json())
+            .then(r => {
+                if(!r.ok) {
+                    this.$buefy.dialog.alert({
+                        type: 'is-danger',
+                        title: 'Server Error',
+                        message: `<b>The server returned an error. </b><br>${r.status} ${r.statusText}`
+                    })
+                    return null;
+                }
+                return r.json()
+            })
             .then(json => {
+                if(!json) return;
+                if(json.token && this.saveToken) 
+                    window.localStorage.canvas_sync_token = json.token
+                
                 this.syncToken = json.token
                 this.$buefy.toast.open({
                     type: 'is-success',
@@ -82,8 +108,8 @@ export default {
             .catch(err => {
                 this.$buefy.dialog.alert({
                     type: 'is-danger',
-                    title: 'Server Error',
-                    message: `<b>The server returned an error. </b><br>${err.message}`
+                    title: 'Request Failed',
+                    message: err.message
                 })
             })
         },
