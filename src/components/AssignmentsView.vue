@@ -4,16 +4,18 @@
     <h2 class="title is-2 has-text-danger">Upcoming Assignments</h2>
     <div class="columns is-multiline">
         <div class="column is-4" v-for="assignment in assignmentsDueSoon" :key="assignment.id"> 
-            <div class="box">
+            <article class="box" style="height: 100%">
                 <h4 class="title is-4">
                     <a :class="{'has-text-danger': assignment.isLate, 'warning': !assignment.isLate}" :href="assignment.html_url">
                         {{assignment.name}}
                     </a>
                 </h4>
                 <p class="subtitle is-6">{{courseNames[assignment.course_id]}}</p>
-                <p>Due <b>{{getDueDate(assignment.due_at)}}</b></p>
-                <em>{{getDueDifference(assignment.timeTillDue)}}</em>
-            </div>
+                <span v-if="assignment.due_at">
+                    <p>Due <b>{{getDueDate(assignment.due_at)}}</b></p>
+                    <em>{{getDueDifference(assignment.delta)}}</em>
+                </span>
+            </article>
         </div>
     </div>
     <h2 class="title is-2 has-text-white">Assignments Grouped By 
@@ -69,7 +71,7 @@ export default {
                     .map(assignment => {
                         return {
                             id: assignment.id,
-                            due: new Date(assignment.due_at).valueOf()
+                            due: assignment.due_at && assignment.due_at > 0 ? new Date(assignment.due_at).valueOf() : false
                         }
                     })
             })
@@ -99,13 +101,16 @@ export default {
   },
   methods: {
       getDueDifference(delta) {
-            if(delta == -1) return "Late"
+            if(delta === false) return "n/a"
+            if(delta <= 0) return "Late"
             const hours = Math.round(delta / 1000 / 60 / 60)
+
             if(hours > 24) return `${Math.round(hours / 24)} days`
             else if(hours == 0) return "< hour"
             return `${hours} hours`
       },
       getDueDate(timestamp) {
+          if(!timestamp || timestamp == 0) return "No Due Date";
           const date = new Date(timestamp)
           return `${date.toLocaleDateString()} at ~${date.toLocaleTimeString()}`
       },
@@ -133,15 +138,15 @@ export default {
                         this.$set(this.checkedAssignments, assignment.id, true)
                     }
                     const date = new Date(assignment.due_at)
-                    const delta = date.valueOf() - NOW;
+                    const isAssignmentDue = assignment.due_at !== null
+                    const delta = isAssignmentDue ? date.valueOf() - NOW : false;
                     
                     const obj = {
                         ...assignment, 
                         courseId: course.id,
-                        timeTillDue: delta > 0 ? delta : -1,
                         delta,
                         date,
-                        isLate: delta <= 0
+                        isLate: isAssignmentDue ? delta <= 0 : false
                     }
                     return obj;
                 })

@@ -26,7 +26,7 @@
                         </a>
                     </th>
                     <td>{{assignment.points_possible}} </td>
-                    <td>{{getDueDifference(assignment.timeTillDue)}}</td>
+                    <td>{{getDueDifference(assignment.delta)}}</td>
                 </tr>
             </tbody>
         </table>
@@ -49,7 +49,8 @@ export default {
     },
     methods: {
         getDueDifference(delta) {
-            if(delta == -1) return "Late"
+            if(delta === false) return ""
+            if(delta < 0) return "Late"
             const hours = Math.round(delta / 1000 / 60 / 60)
             if(hours > 24) return `${Math.round(hours / 24)} days`
             else if(hours == 0) return "< hour"

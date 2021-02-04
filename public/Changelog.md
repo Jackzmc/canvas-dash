@@ -1,6 +1,7 @@
 # v1.4.1
 + Fix syncmodal errors on existing push
 + Fix scheduleviewer active class being broken. I think. finally.
++ Assignments due-relative & UI tweaks
 
 # v1.4.0
 + Re-arranged buttons on home
