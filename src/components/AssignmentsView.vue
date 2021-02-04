@@ -54,7 +54,7 @@ export default {
         //Set group by. need to store this.
         if(meta.groupAssignments && meta.groupAssignments === "course" || meta.groupAssignments === "day")
             this.groupBy = meta.groupAssignments
-        meta.assignments.forEach(assignment => {
+        if(meta.assignments) meta.assignments.forEach(assignment => {
             //Only restore IF its not been 14 days. don't need to hold onto old visibilities
             if(Date.now() - assignment.due <= CHECKED_ASSIGNMENT_DELTA)
                 this.$set(this.checkedAssignments, assignment.id, true)
@@ -130,7 +130,6 @@ export default {
                     if(!(assignment.id in this.checkedAssignments))
                         this.$set(this.checkedAssignments, assignment.id, false)
                     if(assignment.submission.workflow_state === "graded" || assignment.submission.workflow_state === "submitted") {
-                        console.debug('assignment', assignment.id, 'is submitted')
                         this.$set(this.checkedAssignments, assignment.id, true)
                     }
                     const date = new Date(assignment.due_at)

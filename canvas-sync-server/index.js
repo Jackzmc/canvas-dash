@@ -30,7 +30,7 @@ async function main() {
                 token
             })
         })
-        instance.post('/:token', async (request, reply) => {
+        instance.put('/:token', async (request, reply) => {
             await db.query(
                 "UPDATE sync SET data = ? WHERE token = ?",
                 [JSON.stringify(request.body), request.params.token]
@@ -59,7 +59,8 @@ async function main() {
             reply.status(500).send({
                 error: 'INTERNAL SERVER ERROR',
                 code: 'INTERNAL_SERVER_ERROR',
-                requestID: request.id
+                requestID: request.id,
+                message: error.message
             })
         })
         done()

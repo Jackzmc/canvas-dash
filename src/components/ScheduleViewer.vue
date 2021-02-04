@@ -79,7 +79,7 @@ export default {
             .map(entry => {
                 const timestamp = getTimestampFromTime(entry.starts)
                 const difference = currentMS - timestamp
-                if( difference < smallestDifference || smallestDifference == -1) {
+                if( difference > 0 && difference < smallestDifference || smallestDifference == -1) {
                     this.activeEntryID = entry.id,
                     smallestDifference = difference
                 }
@@ -90,7 +90,7 @@ export default {
                     timestamp
                 }
             })
-            .sort((a,b) => b.timestamp - a.timestamp)
+            .sort((a,b) => a.timestamp - b.timestamp)
           
             //Check if active entry is over
             this.checkForEndedActive()
@@ -135,6 +135,6 @@ function getTimestampFromTime(inputTime) {
     else
         timestamp.setHours(hours)
     if(minutes) timestamp.setMinutes(minutes)
-    return Date.now() - timestamp.valueOf()
+    return timestamp.valueOf()
 }
 </script>

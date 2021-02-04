@@ -34,7 +34,7 @@
                 </b-field>
                 <div class="buttons">
                     <!-- <b-button :disabled="syncDisabled" type="is-info" icon-left="sync">Auto Sync</b-button> -->
-                    <b-button v-if="!isFromSetup" @click="syncUp" :disabled="syncDisabled" type="is-info" icon-left="upload">
+                    <b-button v-if="!isFromSetup" @click="syncUp" :disabled="!this.$options.SYNC_SERVER" type="is-info" icon-left="upload">
                         <span v-if="syncToken">Upload</span>
                         <span v-else>Generate Token</span>
                     </b-button>
@@ -48,7 +48,7 @@
     </section>
     <footer class="modal-card-foot">
         <b-button
-            label="Cancel"
+            label="Close"
             @click="$emit('close')" 
         />
     </footer>
@@ -92,6 +92,13 @@ export default {
                     })
                     return null;
                 }
+                if(r.status == 204) {
+                    this.$buefy.toast.open({
+                       type: 'is-success',
+                        message: 'Successfully synchronized your data'
+                    })
+                    return null;
+                }
                 return r.json()
             })
             .then(json => {
@@ -111,6 +118,7 @@ export default {
                     title: 'Request Failed',
                     message: err.message
                 })
+                console.error('Sync UP error', err)
             })
         },
         syncDown() { 
