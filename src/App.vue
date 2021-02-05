@@ -83,6 +83,14 @@ export default {
   },
   methods: {
     updateAvailable(event) {
+      this.$buefy.snackbar.open({
+        type: 'is-danger',
+        message: 'An update is available.',
+        actionText: 'Reload',
+        onAction() {
+          window.location.reload()
+        }
+      })
       console.log(event)
     },
   },

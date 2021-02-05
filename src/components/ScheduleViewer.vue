@@ -74,26 +74,34 @@ export default {
   methods: {
        getTodaysSchedule() {
             const currentMS = Date.now()
-            let smallestDifference = -1;
-            this.todaysSchedule = this.schedule.filter(v => v.days.includes(this.today))
+            console.debug(currentMS)
+            this.todaysSchedule = this.schedule
+            .filter(v => v.days.includes(this.today))
             .map(entry => {
                 const timestamp = getTimestampFromTime(entry.starts)
                 const difference = currentMS - timestamp
-                if( difference > 0 && difference < smallestDifference || smallestDifference == -1) {
-                    this.activeEntryID = entry.id,
-                    smallestDifference = difference
-                }
-
                 return {
                     ...entry,
                     isInPersonToday: entry.inPersonDays ? entry.inPersonDays.includes(this.today) : false,
-                    timestamp
+                    timestamp,
+                    difference
                 }
             })
             .sort((a,b) => a.timestamp - b.timestamp)
+            
+            //Selects the current active entry.
+            this.activeEntryID = this.todaysSchedule.find(entry => {
+                if( currentMS <= entry.timestamp) {
+                    const endTimestamp = getTimestampFromTime(entry.ends)
+                    if(entry.timestamp <= endTimestamp) {
+                        return entry.id;
+                    }else{
+                        return null;
+                    }
+                }
+            })
           
             //Check if active entry is over
-            this.checkForEndedActive()
       },
       checkForEndedActive() {
             const activeEntry = this.schedule.find(entry => entry.id === this.activeEntryID)
