@@ -74,7 +74,6 @@ export default {
   methods: {
        getTodaysSchedule() {
             const currentMS = Date.now()
-            console.debug(currentMS)
             this.todaysSchedule = this.schedule
             .filter(v => v.days.includes(this.today))
             .map(entry => {

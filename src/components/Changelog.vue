@@ -2,7 +2,8 @@
 <div>
     <p class="title is-4 has-text-white">Current version of canvas dashboard is <em>v{{$VERSION}}</em></p>
     <div class="box content has-text-left">
-        <VueMarkdown :source="markdown" />
+        <VueMarkdown v-if="markdown" :source="markdown" />
+        <b-loading :is-full-page="false" active v-else />
     </div>
 </div>
 </template>
