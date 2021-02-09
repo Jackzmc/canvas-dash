@@ -1,4 +1,7 @@
-# v1.4.2
+## v1.4.3
++ Remove order_by=due_at for assignments as this hide some assignments for some reason
+
+## v1.4.2
 + Fix syncmodal errors on existing push
 + Fix scheduleviewer active class being broken. I think. finally.
 + Assignments due-relative & UI tweaks
@@ -10,7 +13,7 @@
 + Sync remember token / UI improvements
 + Can now edit schedules
 
-# v1.3.4
+## v1.3.4
 * Fix assignments not saving being checked
 * Make course links open in new tab/window (target: _blank)
 * Store assignments group by preference
@@ -22,7 +25,7 @@
 * Separate automatic links & user-created links
 * Search announcements for links as well
 
-## v1.2.1
+### v1.2.1
 * Fix zoom link finder failing if pages disabled for course
 
 # v1.2.0

@@ -119,7 +119,7 @@ export default {
         this.loading = true;
         this.visibleCourses
         .forEach(course => {
-            fetch(this.server.url + `/api/v1/courses/${course.id}/assignments?include[]=submission&order_by=due_at`, {
+            fetch(this.server.url + `/api/v1/courses/${course.id}/assignments?include[]=submission`, {
                 headers: {
                     'Authorization': "Bearer " + this.server.api
                 },
