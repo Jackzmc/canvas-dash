@@ -20,6 +20,8 @@ export default {
       ready: false,
       isSetup: false,
       setupModal: null,
+      swRegistration: null,
+      refreshing: false
     }
   },
   created() {
@@ -80,15 +82,25 @@ export default {
         component: () => import('@/components/Setup.vue')
       })
     }
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (this.refreshing) return
+      this.refreshing = true
+      window.location.reload()
+    })
+
   },
   methods: {
     updateAvailable(event) {
+      const registeration = event.detail
       this.$buefy.snackbar.open({
         type: 'is-danger',
         message: 'An update is available.',
         actionText: 'Reload',
         onAction() {
           window.location.reload()
+          if(registeration && registeration.waiting) {
+            registeration.waiting.postMessage({type: 'SKIP_WAITING'})
+          }
         }
       })
       console.log(event)

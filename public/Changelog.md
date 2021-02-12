@@ -1,3 +1,7 @@
+## v1.5.0
++ Added markdown viewer to course page (for notes)
++ Fix new update available being broken
+
 ## v1.4.3
 + Remove order_by=due_at for assignments as this hide some assignments for some reason
 

@@ -8,16 +8,33 @@
              <b-button tag="router-link" to="/" type="is-info" size="is-large" icon-left="arrow-left-circle" />
           </div>
           <div class="column">
-            <h4 class="title is-4 has-text-white">Course Details</h4>
-            <p class="subtitle is-6 has-text-white">{{course.name}}</p>
+            <h2 class="title is-2 has-text-white">{{course.name}}</h2>
           </div>
         </div>
 
-        <hr>
-        <div class="box">
-          <b-field label="Notes">
-            <b-input lazy v-model.lazy="notes" type="textarea" />
-          </b-field>
+        <div class="box has-text-left">
+          <b-tabs v-model="tabIndex">
+            <!-- <b-tab-item label="Announcements">
+
+            </b-tab-item> -->
+            <b-tab-item label="Notes Preview" :disabled="!notes||notes.length == 0" value="preview">
+              <div class="content">
+                <VueMarkdown v-if="notes" :source="notes" />
+              </div>
+            </b-tab-item>
+            <b-tab-item label="Edit Notes" value="edit">
+              <div class="columns">
+                <div class="column is-7">
+                  <b-field label="Markdown Editor">
+                    <b-input rows=20 style="height: 100%" v-model="notes" type="textarea" />
+                  </b-field>
+                </div>
+                <div class="column content">
+                  <VueMarkdown v-if="notes" :source="notes" />
+                </div>
+              </div>
+            </b-tab-item>
+          </b-tabs>
         </div>
       </div>
       <div class="column is-4">
@@ -62,16 +79,22 @@
 </template>
 
 <script>
+import VueMarkdown from 'vue-markdown'
 export default {
   props: ['courses', 'server'],
+  components: {
+      VueMarkdown
+  },
   created() {
     const courseInfo = window.localStorage.canvas_course_info ? JSON.parse(window.localStorage.canvas_course_info) : {}
-    if(courseInfo[this.course.id]) {
+    if(courseInfo && courseInfo[this.course.id]) {
+      this.hadExisting = true
       this.links = courseInfo[this.course.id].links
       this.autoLinks = courseInfo[this.course.id].autoLinks || {}
-
+      this.notes = courseInfo[this.course.id].notes || null
     }
-    this.debounceSave = debounce(this, this.save, 300)
+    this.tabIndex = this.notes ? "preview" : "edit"
+    this.debounceSave = debounce(this, this.save, 5000)
   },
   data() {
     return {
@@ -81,20 +104,25 @@ export default {
         url: null,
         name: null
       },
+      hadExisting: false,
       notes: null,
       zoomFinderLoading: false,
       discordFinderLoading: false,
-      debounceSave: null
+      debounceSave: null,
+      tabIndex: null
     }
   },
   computed: {
     course() {
       return this.courses.find(course => course.id == this.$route.params.course)
-    }
+    },
+    notesPreview() {
+      return null
+    },
   },
   watch: {
     notes() {
-      this.debounceSave()
+      if(this.debounceSave) this.debounceSave()
     }
   },
   methods: {
@@ -105,7 +133,18 @@ export default {
       this.save()
     },
     save() {
-      console.debug('save')
+      //Do not save on load
+      if(this.hadExisting) {
+        this.hadExisting = false
+        return;
+      }
+
+      this.$buefy.snackbar.open({
+        message: 'Successfully saved course info',
+        duration: 2500,
+        queue: false,
+        actionText: null
+      })
       let courseInfo = window.localStorage.canvas_course_info ? JSON.parse(window.localStorage.canvas_course_info) : {}
       courseInfo[this.course.id] = {
         links: this.links,
