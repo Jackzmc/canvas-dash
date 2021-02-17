@@ -1,3 +1,6 @@
+### v1.6.1
++ The like 4th time I've tried fixing active entry: SHOULD BE GOOD NOW
+
 # v1.6 
 + Only keep 2 days of previous assignments
 + Order by day now shows a better date, more consistent

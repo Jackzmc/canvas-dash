@@ -13,12 +13,14 @@
             <tr v-for="entry in todaysSchedule" :key="entry.id">
                 <th class="has-text-left">
                     <b-tooltip label="The current or next class" v-if="activeEntryID == entry.id">
-                        &nbsp;<b-icon type="is-success" icon="star" />
+                        &nbsp;<b-icon type="is-success" size="is-small" icon="star" />
                     </b-tooltip>
                     <router-link v-if="entry.type === 'COURSE'" :to="'/course/' + entry.course.id" :class="{'has-text-success': activeEntryID == entry.id}">
-                        {{entry.cleanName || entry.name || "%3Cuntitled%3E"}}
+                        <b-tooltip :label="entry.course ? entry.course.name : entry.id">{{entry.cleanName || entry.name || "%3Cuntitled%3E"}}</b-tooltip>
                     </router-link>
-                    <span v-else :class="{'has-text-success': activeEntryID == entry.id}">{{entry.name || "%3Cuntitled%3E"}}</span>
+                    <span v-else :class="{'has-text-success': activeEntryID == entry.id}">
+                        {{entry.name || "%3Cuntitled%3E"}}
+                    </span>
                     <b-tooltip label="Class is in person today" v-if="entry.isInPersonToday">
                         &nbsp;<b-icon icon="account-group" />
                     </b-tooltip>
@@ -37,86 +39,68 @@
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 export default {
-  props: ['courses', 'schedule'],
-  name: 'ScheduleViewer',
-  data() {
-      return {
-          activeEntryID: null,
-          today: null
-      }
-  },
-  created() {
-    this.today = getDayLetter(new Date());
-    //update active entry every 10 min
-    setInterval(() => {
-        const currentMS = Date.now()
-        let smallestDifference = -1;
-        this.todaysSchedule = this.schedule.forEach(({id,starts}) => {
-            const timestamp = getTimestampFromTime(starts)
-            const difference = currentMS - timestamp.valueOf()
-            if(difference < smallestDifference || smallestDifference == -1) {
-                this.activeEntryID = id,
-                smallestDifference = difference
-            }
-        })
-                    
-        //Check if active entry is over
-        this.checkForEndedActive()
-    }, 1000 * 60 * 60 * 10);
-
-    this.getTodaysSchedule()
-  },
-  computed: {
-      todayName() {
-          return DAY_NAMES[new Date().getDay()]
-      },
-  },
-  methods: {
-       getTodaysSchedule() {
-            const currentMS = Date.now()
+    props: ['courses', 'schedule'],
+    name: 'ScheduleViewer',
+    data() {
+        return {
+            activeEntryID: null,
+            today: null
+        }
+    },
+    created() {
+        //update active entry every 10 min
+        setInterval(() => {
+            this.getTodaysSchedule()
+        }, 1000 * 60 * 60 * 40);
+        this.getTodaysSchedule()
+    },
+    computed: {
+        todayName() {
+            return DAY_NAMES[new Date().getDay()]
+        },
+    },
+    methods: {
+        //timestamps to test:
+        /*
+        1613577933578   10:05
+        1613584372571   11:52
+        1613586087820   12:16
+        */
+        getTodaysSchedule() {
+            const TODAY_DATE = new Date();
+            this.today = getDayLetter(TODAY_DATE);
+            if(this.schedule.length == 0) return;
             this.todaysSchedule = this.schedule
             .filter(v => v.days.includes(this.today))
             .map(entry => {
-                const timestamp = getTimestampFromTime(entry.starts)
-                const difference = currentMS - timestamp
+                const startTimestamp = getTimestampFromTime(TODAY_DATE, entry.starts)
+                const endTimestamp = getTimestampFromTime(TODAY_DATE, entry.ends)
                 return {
                     ...entry,
                     isInPersonToday: entry.inPersonDays ? entry.inPersonDays.includes(this.today) : false,
-                    timestamp,
-                    difference
+                    startTimestamp,
+                    endTimestamp,
                 }
             })
-            .sort((a,b) => a.timestamp - b.timestamp)
-            
-            //Selects the current active entry.
-            this.activeEntryID = this.todaysSchedule.find(entry => {
-                if( currentMS <= entry.timestamp) {
-                    const endTimestamp = getTimestampFromTime(entry.ends)
-                    if(entry.timestamp <= endTimestamp) {
-                        return entry.id;
-                    }else{
-                        return null;
-                    }
+            .sort((a,b) => a.startTimestamp - b.startTimestamp)
+
+            const currentMS = Date.now()
+            //Loop entries, first entry that is 
+            const activeEntry = this.todaysSchedule.find(entry => {
+                // startTimestamp < currentMS < endTimestamp
+                if(entry.startTimestamp <= currentMS && currentMS <= entry.endTimestamp) {
+                    return entry;
                 }
             })
-          
-            //Check if active entry is over
-      },
-      checkForEndedActive() {
-            const activeEntry = this.schedule.find(entry => entry.id === this.activeEntryID)
             if(activeEntry) {
-                const startTimestamp = getTimestampFromTime(activeEntry.starts)
-                const endTimestamp = getTimestampFromTime(activeEntry.ends)
-                //If the start timestamp is bigger (aka over) the end timestamp, remove it
-                if(startTimestamp > endTimestamp) {
-                    this.activeEntryID = null;
-                    //const today = new Date()
-                    //this.today = getDayLetter(new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1))
-                }
+                this.activeEntryID = activeEntry.id;
+            }else if(this.todaysSchedule[0].endTimestamp >= currentMS) {
+                this.activeEntryID = this.todaysSchedule[0].id
             }
-      }
-  }
+        }
+    }
 }
+
 function getDayLetter(date) {
     const part = date.toString().slice(0,2).toUpperCase()
     switch(part) {
@@ -131,8 +115,8 @@ function getDayLetter(date) {
             return part[0]
     }
 }
-function getTimestampFromTime(inputTime) {
-    const timestamp = new Date();
+function getTimestampFromTime(TODAY_DATE, inputTime) {
+    const timestamp = new Date(TODAY_DATE.valueOf())
     const [time, period] = inputTime.split(" ")
     const [hours, minutes] = time.split(":")
     if(period == "PM" && hours < 12 )
