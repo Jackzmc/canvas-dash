@@ -45,13 +45,13 @@
             </p>
             <ul class="menu-list">
               <li><a target="_blank" :href="'https://' + server.domain + '/courses/' + course.id">Canvas Link</a></li>
-              <li target="_blank" v-for="(name, link) in autoLinks" :key="link"><a :href="link">{{name}}</a></li>
+              <li v-for="(name, link) in autoLinks" :key="link"><a :href="link" target="_blank">{{name}}</a></li>
             </ul>
             <p class="menu-label">
               User Created Links
             </p>
             <ul class="menu-list">
-              <li target="_blank" v-for="(name, link) in links" :key="link"><a :href="link">{{name}}</a></li>
+              <li v-for="(name, link) in links" :key="link"><a :href="link" target="_blank" >{{name}}</a></li>
             </ul>
           </aside>
           <hr>

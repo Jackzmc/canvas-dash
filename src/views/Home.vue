@@ -107,9 +107,7 @@ export default {
   },
   watch: {
     tabIndex(n) {
-      console.log(n)
       if(n === "changelog" && !this.changelog) {
-        console.debug('Fetching changelog...')
         this.changelog = true;
       }
     }

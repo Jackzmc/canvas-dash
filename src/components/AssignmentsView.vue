@@ -25,7 +25,7 @@
         </b-select>
     </h2>
     <ListByCourse v-if="groupBy === 'course'" :courses="visibleCourses" :assignments="assignments" :checkedAssignments="checkedAssignments" />
-    <ListByDay v-else :courses="visibleCourses" :assignments="assignments" :checkedAssignments="checkedAssignments" />
+    <ListByDay    v-else                      :courses="visibleCourses" :assignments="assignments" :checkedAssignments="checkedAssignments" />
 </div>
 </template>
 
@@ -62,6 +62,7 @@ export default {
                 this.$set(this.checkedAssignments, assignment.id, true)
         })
         window.onbeforeunload = () => {
+            console.debug('Unloading, Saving meta information...')
             const preMeta = JSON.parse(window.localStorage.canvas_meta)
             window.localStorage.canvas_meta = JSON.stringify({
                 ...preMeta,
@@ -140,7 +141,9 @@ export default {
                     const date = new Date(assignment.due_at)
                     const isAssignmentDue = assignment.due_at !== null
                     const delta = isAssignmentDue ? date.valueOf() - NOW : false;
-                    
+                    const dayDelta = delta / 8.64e+7 //divide MS delta -> days
+                    if(dayDelta <= -2) return null;
+
                     const obj = {
                         ...assignment, 
                         courseId: course.id,
@@ -150,6 +153,8 @@ export default {
                     }
                     return obj;
                 })
+                //Filter out any null (past < 2 days)
+                .filter(assignment => assignment)
                 this.assignments = this.assignments.concat(assignments)
                 // this.$set(this.assignments, course.id, assignments);
             })

@@ -1,7 +1,10 @@
 <template>
 <div>
     <div v-for="day in days" :key="day" class="box">
-        <h5 class="title is-5">{{getDayName(day)}}</h5>
+        <h5 class="title is-5">
+            {{getDateName(day, daysMap[day])}}
+            <p class="subtitle is-inline is-pulled-right">{{day}}</p>
+        </h5>
         <table class="table is-fullwidth" v-if="assignmentsByDay[day] && assignmentsByDay[day].length > 0">
             <thead>
                 <tr>
@@ -43,27 +46,26 @@ export default {
     data() {
         return {
             todayDate: null,
-            tomorrowDate: null
+            tomorrowDate: null,
+            assignmentsByDay: {},
+            daysMap: {}
         }
     },
     created() {
         const date = new Date()
+        this.yesterdayDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 1).toLocaleDateString('sv')
         this.todayDate = date.toLocaleDateString('sv')
         this.tomorrowDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1).toLocaleDateString('sv')
     },
+    mounted() {
+        this.getAssignmentsByDay()
+    },
+    watch: {
+        assignments() {
+            this.getAssignmentsByDay()
+        }
+    },
     computed: {
-        assignmentsByDay() {
-            //Group the assignments by putting their day #
-            let days = {};
-            this.assignments.forEach(assignment => {
-                const prefix = assignment.date.toLocaleDateString('sv')
-                const course = this.courses.find(course => course.id === assignment.courseId)
-                assignment.courseTitle = course ? course.name : null
-                if(!days[prefix]) days[prefix] = []
-                days[prefix].push(assignment)
-            })
-            return days
-        },
         days() {
             return Object.keys(this.assignmentsByDay)
                 .filter(key => key[0] != "T")
@@ -77,9 +79,35 @@ export default {
         }
     },
     methods: {
-        getDayName(name) {
-            if(name === this.todaysDate) return "Today"
-            else if(name === this.tomorrowDate) return "Tomorrow"
+        getAssignmentsByDay() {
+            //list of {'yy-mm-dd': 'Day Date, year'}
+            let daysMap = {}
+            //Object of <'yy-mm-dd': assignments:[]>
+            let days = {}, undated = [];
+            this.assignments.forEach(assignment => {
+                const prefix = assignment.date.toLocaleDateString('sv')
+                const course = this.courses.find(course => course.id === assignment.courseId)
+
+                assignment.courseTitle = course ? course.name : null
+
+                if(assignment.date.valueOf() > 0) {
+                    if(!days[prefix]) {
+                        days[prefix] = []
+                        daysMap[prefix] = assignment.date.toLocaleDateString('en-us', {dateStyle: 'long'})
+                    }
+                    days[prefix].push(assignment)
+                } else 
+                    undated.push(assignment)
+            })
+            days['undated'] = undated
+            daysMap['undated'] = "Undated"
+            this.assignmentsByDay = days
+            this.daysMap = daysMap
+        },
+        getDateName(id, name) {
+            if(id === this.todayDate) return "Today"
+            else if(id === this.tomorrowDate) return "Tomorrow"
+            else if(id === this.yesterdayDate) return "Yesterday"
             else return name
         },
         getDueDifference(delta) {
