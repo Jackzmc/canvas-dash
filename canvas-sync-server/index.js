@@ -31,11 +31,27 @@ async function main() {
             })
         })
         instance.put('/:token', async (request, reply) => {
-            await db.query(
-                "UPDATE sync SET data = ? WHERE token = ?",
-                [JSON.stringify(request.body), request.params.token]
+            if(!request.body) return reply.status(400).send({
+                error: 'No body was provided',
+                code: 'ERR_NO_BODY',
+            })
+            const [rows] = await db.query(
+                "SELECT data FROM sync WHERE token = ?",
+                [request.params.token]
             )
-            reply.status(204).send()
+            if(rows.length > 0) {
+                await db.query(
+                    "UPDATE sync SET data = ? WHERE token = ?",
+                    [JSON.stringify(request.body), request.params.token]
+                )
+                reply.status(204).send()
+            }else{
+                await db.query(
+                    "INSERT INTO sync (token, data) VALUES (?, ?)",
+                    [request.params.token, JSON.stringify(request.body)]
+                )
+                reply.status(200).send()
+            }
         })
         instance.get('/:token', async (request, reply) => {
             const [rows] = await db.query(
